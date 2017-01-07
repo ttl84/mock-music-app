@@ -1,0 +1,7 @@
+.songs, .playlists, .search {
+    display: none;
+}
+
+.active {
+  display: block;
+}
