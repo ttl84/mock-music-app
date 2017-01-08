@@ -5,3 +5,24 @@
 .active {
   display: block;
 }
+
+#topbar {
+  margin: auto;
+}
+
+.top-bar-button-icon {
+  text-align: center;
+  margin-left: 10px;
+  margin-bottom: 10px;
+  overflow : auto;
+  background-size : auto;
+  background-color : white;
+  color : black;
+}
+
+.top-bar-button-icon > span {
+  display : block;
+}
+.top-bar-button.active .top-bar-button-icon {
+  color : purple;
+}
