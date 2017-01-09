@@ -20,14 +20,22 @@
   margin-left: 10px;
   margin-bottom: 10px;
   overflow : auto;
-  color : #333333; // almost black
 }
 
 .top-bar-button-icon > span {
   display : block;
 }
-.top-bar-button.active .top-bar-button-icon {
+.active .top-bar-button-icon-glyph {
   color : #810082; // dark purple
+}
+.active .top-bar-button-icon-text {
+  color : #820054;
+}
+.top-bar-button-icon-glyph {
+  color : #333333; // dark grey
+}
+.top-bar-button-icon-text {
+  color : #8c8c8c; // light grey
 }
 
 .playlists {
