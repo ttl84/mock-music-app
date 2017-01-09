@@ -14,22 +14,19 @@
 
 .top-bar {
   background-color: #f9f9f9; // almost white
-  border-bottom-width: 1px;
-  border-bottom-color: #b9b3c3;
-  border-bottom-style: solid;
 }
 
 .top-bar > ul {
   text-align: center;
-  border:0px;
+  border-bottom-color: #b9b3c3;
 }
 
-.top-bar-button-icon {
+.top-bar-button {
   text-align: center;
   overflow : auto;
 }
 
-.top-bar-button-icon > span {
+.top-bar-button > span {
   display : block;
   margin: 2px;
 }
