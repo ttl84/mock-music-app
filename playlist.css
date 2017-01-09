@@ -14,16 +14,22 @@
 
 .top-bar {
   background-color: #f9f9f9; // almost white
+  text-align: center;
 }
 
 .top-bar > ul {
-  text-align: center;
   border-bottom-color: #b9b3c3;
+  border-bottom-style: solid;
+  border-bottom-width: 1px;
+  margin:0px;
+  padding: 0px;
+  text-align: center;
 }
 
 .top-bar-button {
   text-align: center;
   overflow : auto;
+  display:inline-block;
 }
 
 .top-bar-button > span {
