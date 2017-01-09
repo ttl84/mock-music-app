@@ -30,6 +30,8 @@
   text-align: center;
   overflow : auto;
   display:inline-block;
+  margin-left: 10%;
+  margin-right: 10%;
 }
 
 .top-bar-button > span {
