@@ -15,10 +15,15 @@
 .top-bar {
   background-color: #f9f9f9; // almost white
 }
+
+.top-bar > ul {
+  text-align: center;
+  border:0px;
+}
+
 .top-bar-button-icon {
   text-align: center;
-  margin-left: 10px;
-  margin-bottom: 10px;
+  margin: 5px;
   overflow : auto;
 }
 
