@@ -1,3 +1,9 @@
+.container{
+  //font-size: 300%;
+  margin: 0;
+  padding: 0;
+}
+
 .songs, .playlists, .search {
     display: none;
 }
@@ -6,23 +12,24 @@
   display: block;
 }
 
-#topbar {
-  margin: auto;
+.top-bar {
+  background-color: #f9f9f9; // almost white
 }
-
 .top-bar-button-icon {
   text-align: center;
   margin-left: 10px;
   margin-bottom: 10px;
   overflow : auto;
-  background-size : auto;
-  background-color : white;
-  color : black;
+  color : #333333; // almost black
 }
 
 .top-bar-button-icon > span {
   display : block;
 }
 .top-bar-button.active .top-bar-button-icon {
-  color : purple;
+  color : #810082; // dark purple
+}
+
+.playlists {
+  background: #E8E0F4; // light purple
 }
