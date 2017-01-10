@@ -72,3 +72,22 @@
   margin-left: 5%;
   margin-right: 5%;
 }
+
+.playlist-icon {
+  float: left;
+  border-width: 1px;
+  border-style: solid;
+  border-color: #979797;
+  width: 46px;
+  height: 40px;
+  background-color: #d8d8d8;
+}
+.playlist-name {
+  color: #835797;
+}
+.playlist-expand-button {
+  float: right;
+  font-size: 200%;
+  color: #808080;
+  margin-right: 30px;
+}
