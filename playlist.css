@@ -1,4 +1,9 @@
-
+#top-bar-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%
+}
 
 .top-bar {
   background-color: #f9f9f9;
@@ -41,10 +46,11 @@
   color : #8c8c8c;
 }
 
-.playlist-view {
+#playlist-view {
   background-color: #E8E0F4;
   text-align: center;
-  overflow-y: auto;
+  overflow: scroll;
+  padding-top: 48px;
 }
 
 #new-playlist-button {
