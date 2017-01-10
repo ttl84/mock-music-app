@@ -70,16 +70,21 @@
 
 .playlist {
   display:block;
-  height: 57px;
+  height: 75px;
   border-bottom-width: 1px;
   border-bottom-style: solid;
   border-bottom-color: #979797;
-  margin-top: 18px;
   margin-left: 5%;
   margin-right: 5%;
+
+  padding-top: 20px;
+  padding-bottom: 20px;
   padding-left: 30px;
   padding-right: 30px;
 
+}
+.playlist:active {
+  background-color: #cac3d5;
 }
 
 .playlist-icon {
