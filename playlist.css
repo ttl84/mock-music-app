@@ -71,6 +71,9 @@
   margin-top: 18px;
   margin-left: 5%;
   margin-right: 5%;
+  padding-left: 30px;
+  padding-right: 30px;
+
 }
 
 .playlist-icon {
@@ -89,5 +92,4 @@
   float: right;
   font-size: 200%;
   color: #808080;
-  margin-right: 30px;
 }
