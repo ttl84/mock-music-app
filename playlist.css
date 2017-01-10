@@ -1,10 +1,4 @@
-.songs, .playlists, .search {
-    display: none;
-}
 
-.active {
-  display: block;
-}
 
 .top-bar {
   background-color: #f9f9f9;
@@ -47,22 +41,34 @@
   color : #8c8c8c;
 }
 
-.playlists {
+.playlist-view {
   background-color: #E8E0F4;
   text-align: center;
   overflow-y: auto;
 }
 
-.playlists-item {
-  display:block;
-}
-
 #new-playlist-button {
   border:0px;
-  padding: 8px;
-  margin: 8px;
+  padding: 4px;
+  margin-top: 8px;
   border-radius: 5px;
   width:95%;
   background-color: #936ac7;
   color: white;
+  display:inline-block;
+}
+
+#playlist-list {
+  padding:0px;
+}
+
+.playlist {
+  display:block;
+  height: 57px;
+  border-bottom-width: 1px;
+  border-bottom-style: solid;
+  border-bottom-color: #979797;
+  margin-top: 18px;
+  margin-left: 5%;
+  margin-right: 5%;
 }
