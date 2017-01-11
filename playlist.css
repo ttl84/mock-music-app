@@ -2,7 +2,8 @@
   position: fixed;
   top: 0;
   left: 0;
-  width: 100%
+  width: 100%;
+  z-index: 1;
 }
 
 .top-bar {
@@ -51,6 +52,8 @@
   text-align: center;
   overflow: scroll;
   padding-top: 48px;
+  position:static;
+  z-index: 0;
 }
 
 #new-playlist-button {
