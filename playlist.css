@@ -56,17 +56,18 @@
   z-index: 0;
 }
 
-#new-playlist-button {
+.purple-button {
   border:0px;
   padding: 4px;
   margin-top: 8px;
   border-radius: 5px;
-  width:95%;
   background-color: #936ac7;
   color: white;
   display:inline-block;
 }
-
+#new-playlist-button {
+  width:95%;
+}
 .music-item-list {
   padding:0px;
 }
