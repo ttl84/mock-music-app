@@ -12,15 +12,15 @@
     <header id="top-bar-header">
       <nav class="top-bar">
         <ul>
-          <li class="top-bar-button">
+          <li id='library-button' class="top-bar-button">
             <span class="top-bar-button-icon-glyph glyphicon glyphicon-music"></span>
             <span class="top-bar-button-icon-text">Library</span>
           </li>
-          <li class="top-bar-button active">
+          <li id='playlists-button' class="top-bar-button active">
             <span class="top-bar-button-icon-glyph glyphicon glyphicon-th-list"></span>
             <span class="top-bar-button-icon-text">Playlists</span>
           </li>
-          <li class="top-bar-button">
+          <li id='search-button' class="top-bar-button">
             <span class="top-bar-button-icon-glyph glyphicon glyphicon-search"></span>
             <span class="top-bar-button-icon-text">Search</span>
           </li>
@@ -28,7 +28,7 @@
       </nav>
     </header>
 
-    <div id="playlist-view" class="active">
+    <div id="content-view" class="active">
       <button id="new-playlist-button">
         <span class="glyphicon glyphicon-plus"></span>
         <span>Playlist</span>
@@ -77,5 +77,8 @@
       </ul>
     </div>
   </div>
+
+  <script src='music-data.js'></script>
+  <script src='music-app.js'></script>
 </body>
 </html>
