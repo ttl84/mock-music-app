@@ -55,16 +55,20 @@ function createPlaylistItemNode(playlist) {
 
   var musicTitle = document.createElement('span');
   musicTitle.classList.add('music-title');
+  musicTitle.textContent = playlist['name'];
 
   var expandButton = document.createElement('span');
+  expandButton.classList.add('music-item-button');
   addGlyphicon(expandButton, 'chevron-right');
-  expandButton.classList.add('playlist-expand-button');
+
 
   item.appendChild(musicIcon);
   item.appendChild(musicTitle);
   item.appendChild(expandButton);
+
+  return item;
 }
-function addGlyphicon(elename) {
+function addGlyphicon(ele, name) {
   ele.classList.add('glyphicon');
   ele.classList.add('glyphicon-' + name);
 }
