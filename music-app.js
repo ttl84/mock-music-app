@@ -39,23 +39,34 @@ function removeAllChildren(ele) {
   }
 }
 function redrawPlaylistsContent() {
-  var contentView = document.getElementById('content-view');
-  removeAllChildren(contentView);
-  var newPlaylistButton = createPurpleButton();
-  newPlaylistButton.appendChild(createGlyphicon('plus'));
-  newPlaylistButton.appendChild(createText('Playlist'));
-  contentView.appendChild(newPlaylistButton);
+  var playlistList = document.getElementById('playlist-list');
+  removeAllChildren(playlistList);
+  var playlistListData = window.MUSIC_DATA['playlists'];
+  playlistListData.forEach(function(playlist) {
+    playlistList.appendChild(createPlaylistItemNode(playlist));
+  });
 }
-function createPurpleButton() {
-  var ele = document.createElement('button');
-  ele.classList.add('purple-button');
-  return ele;
+function createPlaylistItemNode(playlist) {
+  var item = document.createElement('li');
+  item.classList.add('music-item');
+
+  var musicIcon = document.createElement('div');
+  musicIcon.classList.add('music-cover-thumbnail');
+
+  var musicTitle = document.createElement('span');
+  musicTitle.classList.add('music-title');
+
+  var expandButton = document.createElement('span');
+  addGlyphicon(expandButton, 'chevron-right');
+  expandButton.classList.add('playlist-expand-button');
+
+  item.appendChild(musicIcon);
+  item.appendChild(musicTitle);
+  item.appendChild(expandButton);
 }
-function createGlyphicon(name) {
-  var ele = document.createElement('span');
+function addGlyphicon(elename) {
   ele.classList.add('glyphicon');
   ele.classList.add('glyphicon-' + name);
-  return ele;
 }
 function createText(t) {
   var ele = document.createElement('span');
