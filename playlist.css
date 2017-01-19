@@ -110,9 +110,14 @@ html, body {
 }
 .music-title-subtitle {
   margin-left: 10px;
+  width: 50%;
 }
 .music-title-subtitle > *{
   display: block;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  width: 100%;
 }
 .music-title {
   color: #835797;

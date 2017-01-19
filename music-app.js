@@ -46,6 +46,24 @@ function redrawLibraryContent() {
   window.MUSIC_DATA['songs'].forEach(function(song) {
     musicList.appendChild(createSongItemNode(song));
   });
+
+  var contentView = document.getElementById('content-view');
+  removeAllChildren(contentView);
+  contentView.appendChild(musicList);
+}
+function redrawPlaylistsContent() {
+  var button = createNewPlaylistButtonNode();
+
+  var playlistList = document.createElement('ul');
+  playlistList.classList.add('music-item-list');
+  window.MUSIC_DATA['playlists'].forEach(function(playlist) {
+    playlistList.appendChild(createPlaylistItemNode(playlist));
+  });
+
+  var contentView = document.getElementById('content-view');
+  removeAllChildren(contentView);
+  contentView.appendChild(button);
+  contentView.appendChild(playlistList);
 }
 function createSongItemNode(song) {
   var item = document.createElement('li');
@@ -86,20 +104,7 @@ function createMusicSubtitleNode(text) {
   musicSubtitle.textContent = text;
   return musicSubtitle;
 }
-function redrawPlaylistsContent() {
-  var button = createNewPlaylistButtonNode();
 
-  var playlistList = document.createElement('ul');
-  playlistList.classList.add('music-item-list');
-  window.MUSIC_DATA['playlists'].forEach(function(playlist) {
-    playlistList.appendChild(createPlaylistItemNode(playlist));
-  });
-
-  var contentView = document.getElementById('content-view');
-  removeAllChildren(contentView);
-  contentView.appendChild(button);
-  contentView.appendChild(playlistList);
-}
 function createNewPlaylistButtonNode() {
   var button = document.createElement('button');
   button.id = 'new-playlist-button';
@@ -145,5 +150,6 @@ function createText(t) {
 }
 
 (function main() {
-  activatePlaylistsTab();
+  //activatePlaylistsTab();
+  activateLibraryTab();
 })();
