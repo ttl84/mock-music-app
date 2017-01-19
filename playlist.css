@@ -96,7 +96,9 @@ html, body {
 .music-item:active {
   background-color: #cac3d5;
 }
-
+.music-item > * {
+  display: inline-block;
+}
 .music-cover-thumbnail {
   float: left;
   border-width: 1px;
@@ -106,20 +108,21 @@ html, body {
   height: 40px;
   background-color: #d8d8d8;
 }
+.music-title-subtitle {
+  margin-left: 10px;
+}
+.music-title-subtitle > *{
+  display: block;
+}
 .music-title {
   color: #835797;
   font-size: 110%;
-  display: block;
 }
 .music-subtitle {
   color: #808080;
-  display: block;
   font-size: 90%;
 }
-.music-title-subtitle {
-  margin-left: 10px;
-  display: inline-block;
-}
+
 
 .music-item-button {
   float: right;
