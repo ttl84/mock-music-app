@@ -39,12 +39,36 @@ function removeAllChildren(ele) {
   }
 }
 function redrawPlaylistsContent() {
-  var playlistList = document.getElementById('playlist-list');
-  removeAllChildren(playlistList);
+  var button = createNewPlaylistButtonNode();
+
+  var playlistList = document.createElement('ul');
+  playlistList.id = 'playlist-list';
+  playlistList.classList.add('music-item-list');
   var playlistListData = window.MUSIC_DATA['playlists'];
   playlistListData.forEach(function(playlist) {
     playlistList.appendChild(createPlaylistItemNode(playlist));
   });
+
+  var contentView = document.getElementById('content-view');
+  removeAllChildren(contentView);
+  contentView.appendChild(button);
+  contentView.appendChild(playlistList);
+}
+function createNewPlaylistButtonNode() {
+  var button = document.createElement('button');
+  button.id = 'new-playlist-button';
+  button.classList.add('purple-button');
+
+  var icon = document.createElement('span');
+  addGlyphicon(icon, 'plus');
+
+  var text = document.createElement('span');
+  text.textContent = 'Playlist';
+
+  button.appendChild(icon);
+  button.appendChild(text);
+
+  return button;
 }
 function createPlaylistItemNode(playlist) {
   var item = document.createElement('li');
