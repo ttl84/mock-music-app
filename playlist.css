@@ -90,6 +90,8 @@ html, body {
   padding-left: 30px;
   padding-right: 30px;
 
+  text-align: left;
+
 }
 .music-item:active {
   background-color: #cac3d5;
@@ -106,7 +108,19 @@ html, body {
 }
 .music-title {
   color: #835797;
+  font-size: 110%;
+  display: block;
 }
+.music-subtitle {
+  color: #808080;
+  display: block;
+  font-size: 90%;
+}
+.music-title-subtitle {
+  margin-left: 10px;
+  display: inline-block;
+}
+
 .music-item-button {
   float: right;
   font-size: 200%;
