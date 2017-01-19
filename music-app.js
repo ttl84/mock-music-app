@@ -101,3 +101,7 @@ function createText(t) {
   ele.textContent = t;
   return ele;
 }
+
+(function main() {
+  activatePlaylistsTab();
+})();
