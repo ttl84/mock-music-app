@@ -1,155 +1,156 @@
-var currentTab = null;
-function activateLibraryTab() {
-  if (currentTab !== 'library') {
-    currentTab = 'library';
-    redraw();
-  }
-}
-
-function activatePlaylistsTab() {
-  if (currentTab !== 'playlists') {
-    currentTab = 'playlists';
-    redraw();
-  }
-}
-
-function redraw() {
-  redrawTopBar();
-  if(currentTab === 'playlists') {
-    redrawPlaylistsContent();
-  } else if(currentTab === 'library') {
-    redrawLibraryContent();
-  }
-}
-
-function redrawTopBar() {
-  var buttonList = document.getElementById('top-bar-button-list');
-  var buttonId = currentTab + '-button';
-  for (var i = 0; i < buttonList.children.length; i++) {
-    var child = buttonList.children[i];
-    if (child.id === buttonId) {
-      child.classList.add('active');
-    } else {
-      child.classList.remove('active');
+(function main() {
+  var currentTab = null;
+  function activateLibraryTab() {
+    if (currentTab !== 'library') {
+      currentTab = 'library';
+      redraw();
     }
   }
-}
 
-function removeAllChildren(ele) {
-  while(ele.lastChild) {
-    ele.removeChild(ele.lastChild);
+  function activatePlaylistsTab() {
+    if (currentTab !== 'playlists') {
+      currentTab = 'playlists';
+      redraw();
+    }
   }
-}
-function redrawLibraryContent() {
-  var musicList = document.createElement('ul');
-  musicList.classList.add('music-item-list');
-  window.MUSIC_DATA['songs'].forEach(function(song) {
-    musicList.appendChild(createSongItemNode(song));
-  });
 
-  var contentView = document.getElementById('content-view');
-  removeAllChildren(contentView);
-  contentView.appendChild(musicList);
-}
-function redrawPlaylistsContent() {
-  var button = createNewPlaylistButtonNode();
+  function redraw() {
+    redrawTopBar();
+    if(currentTab === 'playlists') {
+      redrawPlaylistsContent();
+    } else if(currentTab === 'library') {
+      redrawLibraryContent();
+    }
+  }
 
-  var playlistList = document.createElement('ul');
-  playlistList.classList.add('music-item-list');
-  window.MUSIC_DATA['playlists'].forEach(function(playlist) {
-    playlistList.appendChild(createPlaylistItemNode(playlist));
-  });
+  function redrawTopBar() {
+    var buttonList = document.getElementById('top-bar-button-list');
+    var buttonId = currentTab + '-button';
+    for (var i = 0; i < buttonList.children.length; i++) {
+      var child = buttonList.children[i];
+      if (child.id === buttonId) {
+        child.classList.add('active');
+      } else {
+        child.classList.remove('active');
+      }
+    }
+  }
 
-  var contentView = document.getElementById('content-view');
-  removeAllChildren(contentView);
-  contentView.appendChild(button);
-  contentView.appendChild(playlistList);
-}
-function createSongItemNode(song) {
-  var item = document.createElement('li');
-  item.classList.add('music-item');
+  function removeAllChildren(ele) {
+    while(ele.lastChild) {
+      ele.removeChild(ele.lastChild);
+    }
+  }
+  function redrawLibraryContent() {
+    var musicList = document.createElement('ul');
+    musicList.classList.add('music-item-list');
+    window.MUSIC_DATA['songs'].forEach(function(song) {
+      musicList.appendChild(createSongItemNode(song));
+    });
 
-  var musicIcon = document.createElement('div');
-  musicIcon.classList.add('music-cover-thumbnail');
+    var contentView = document.getElementById('content-view');
+    removeAllChildren(contentView);
+    contentView.appendChild(musicList);
+  }
+  function redrawPlaylistsContent() {
+    var button = createNewPlaylistButtonNode();
 
-  var expandButton = document.createElement('span');
-  expandButton.classList.add('music-item-button');
-  addGlyphicon(expandButton, 'chevron-right');
+    var playlistList = document.createElement('ul');
+    playlistList.classList.add('music-item-list');
+    window.MUSIC_DATA['playlists'].forEach(function(playlist) {
+      playlistList.appendChild(createPlaylistItemNode(playlist));
+    });
 
-  item.appendChild(musicIcon);
-  item.appendChild(createMusicTitleSubtitleNode(song['title'], song['artist']));
-  item.appendChild(expandButton);
+    var contentView = document.getElementById('content-view');
+    removeAllChildren(contentView);
+    contentView.appendChild(button);
+    contentView.appendChild(playlistList);
+  }
+  function createSongItemNode(song) {
+    var item = document.createElement('li');
+    item.classList.add('music-item');
 
-  return item;
-}
+    var musicIcon = document.createElement('div');
+    musicIcon.classList.add('music-cover-thumbnail');
 
-function createMusicTitleSubtitleNode(title, subtitle) {
-  var node = document.createElement('div');
-  node.classList.add('music-title-subtitle');
-  node.appendChild(createMusicTitleNode(title));
-  node.appendChild(createMusicSubtitleNode(subtitle));
-  return node;
-}
+    var expandButton = document.createElement('span');
+    expandButton.classList.add('music-item-button');
+    addGlyphicon(expandButton, 'chevron-right');
 
-function createMusicTitleNode(text) {
-  var musicTitle = document.createElement('span');
-  musicTitle.classList.add('music-title');
-  musicTitle.textContent = text;
-  return musicTitle;
-}
+    item.appendChild(musicIcon);
+    item.appendChild(createMusicTitleSubtitleNode(song['title'], song['artist']));
+    item.appendChild(expandButton);
 
-function createMusicSubtitleNode(text) {
-  var musicSubtitle = document.createElement('span');
-  musicSubtitle.classList.add('music-subtitle');
-  musicSubtitle.textContent = text;
-  return musicSubtitle;
-}
+    return item;
+  }
 
-function createNewPlaylistButtonNode() {
-  var button = document.createElement('button');
-  button.id = 'new-playlist-button';
-  button.classList.add('purple-button');
+  function createMusicTitleSubtitleNode(title, subtitle) {
+    var node = document.createElement('div');
+    node.classList.add('music-title-subtitle');
+    node.appendChild(createMusicTitleNode(title));
+    node.appendChild(createMusicSubtitleNode(subtitle));
+    return node;
+  }
 
-  var icon = document.createElement('span');
-  addGlyphicon(icon, 'plus');
+  function createMusicTitleNode(text) {
+    var musicTitle = document.createElement('span');
+    musicTitle.classList.add('music-title');
+    musicTitle.textContent = text;
+    return musicTitle;
+  }
 
-  var text = document.createElement('span');
-  text.textContent = 'Playlist';
+  function createMusicSubtitleNode(text) {
+    var musicSubtitle = document.createElement('span');
+    musicSubtitle.classList.add('music-subtitle');
+    musicSubtitle.textContent = text;
+    return musicSubtitle;
+  }
 
-  button.appendChild(icon);
-  button.appendChild(text);
+  function createNewPlaylistButtonNode() {
+    var button = document.createElement('button');
+    button.id = 'new-playlist-button';
+    button.classList.add('purple-button');
 
-  return button;
-}
-function createPlaylistItemNode(playlist) {
-  var item = document.createElement('li');
-  item.classList.add('music-item');
+    var icon = document.createElement('span');
+    addGlyphicon(icon, 'plus');
 
-  var musicIcon = document.createElement('div');
-  musicIcon.classList.add('music-cover-thumbnail');
+    var text = document.createElement('span');
+    text.textContent = 'Playlist';
 
-  var expandButton = document.createElement('span');
-  expandButton.classList.add('music-item-button');
-  addGlyphicon(expandButton, 'chevron-right');
+    button.appendChild(icon);
+    button.appendChild(text);
+
+    return button;
+  }
+  function createPlaylistItemNode(playlist) {
+    var item = document.createElement('li');
+    item.classList.add('music-item');
+
+    var musicIcon = document.createElement('div');
+    musicIcon.classList.add('music-cover-thumbnail');
+
+    var expandButton = document.createElement('span');
+    expandButton.classList.add('music-item-button');
+    addGlyphicon(expandButton, 'chevron-right');
 
 
-  item.appendChild(musicIcon);
-  item.appendChild(createMusicTitleSubtitleNode(playlist['name']));
-  item.appendChild(expandButton);
+    item.appendChild(musicIcon);
+    item.appendChild(createMusicTitleSubtitleNode(playlist['name']));
+    item.appendChild(expandButton);
 
-  return item;
-}
-function addGlyphicon(ele, name) {
-  ele.classList.add('glyphicon');
-  ele.classList.add('glyphicon-' + name);
-}
-function createText(t) {
-  var ele = document.createElement('span');
-  ele.textContent = t;
-  return ele;
-}
+    return item;
+  }
+  function addGlyphicon(ele, name) {
+    ele.classList.add('glyphicon');
+    ele.classList.add('glyphicon-' + name);
+  }
+  function createText(t) {
+    var ele = document.createElement('span');
+    ele.textContent = t;
+    return ele;
+  }
 
-(function main() {
+
   //activatePlaylistsTab();
   activateLibraryTab();
 })();
