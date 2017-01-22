@@ -112,7 +112,7 @@ html, body {
   margin-left: 10px;
   width: 50%;
 }
-.music-title-subtitle > *{
+.text-cut-short {
   display: block;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -128,9 +128,46 @@ html, body {
   font-size: 90%;
 }
 
-
 .music-item-button {
   float: right;
   font-size: 200%;
   color: #808080;
+}
+
+.modal-dim {
+  background-color: #7f7f7f;
+  opacity: 0.5;
+}
+.modal-background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.playlist-selection {
+  background-color: #E8E0F4;
+  width: 65%;
+  max-height: 65%;
+  overflow-y: scroll;
+  text-align: left;
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.playlist-selection-title {
+  color: #808080;
+  margin: 10px;
+  display: block;
+}
+.playlist-selection-cancel {
+  float: right;
+}
+.playlist-selection-item {
+  color: #835797;
+  margin: 30px;
+  display: block;
 }

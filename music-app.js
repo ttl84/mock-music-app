@@ -1,6 +1,11 @@
 (function () {
   'use strict';
   var currentTab = null;
+
+  function popContent () {
+    var contentView = document.getElementById('content-view');
+    contentView.removeChild(contentView.lastChild);
+  }
   function activateLibraryTab () {
     if (currentTab !== 'library') {
       currentTab = 'library';
@@ -67,6 +72,51 @@
     contentView.appendChild(button);
     contentView.appendChild(playlistList);
   }
+  function createPlaylistSelectionBackgroundNode () {
+    var background = document.createElement('div');
+    background.classList.add('modal-dim');
+    background.classList.add('modal-background');
+    return background;
+  }
+  function createPlaylistSelectionTitleBarNode (closeModalCallback) {
+    var titleBar = document.createElement('div');
+    titleBar.classList.add('playlist-selection-title');
+
+    var title = document.createElement('span');
+    title.textContent = 'Choose playlist';
+
+    var cancel = document.createElement('span');
+    cancel.classList.add('playlist-selection-cancel');
+    addGlyphicon(cancel, 'remove');
+    cancel.addEventListener('click', closeModalCallback);
+
+    titleBar.appendChild(title);
+    titleBar.appendChild(cancel);
+    return titleBar;
+  }
+  function createPlaylistSelectionPlaylistNode (playlist, closeModalCallback) {
+    var ele = document.createElement('span');
+    ele.textContent = playlist['name'];
+    ele.classList.add('playlist-selection-item');
+    ele.classList.add('playlist-selection-row');
+    ele.addEventListener('click', closeModalCallback);
+    return ele;
+  }
+  function createPlaylistSelectionModalNode () {
+    var modal = document.createElement('div');
+    modal.classList.add('playlist-selection');
+
+    function closeModalCallback (e) {
+      popContent();
+      popContent();
+    }
+
+    modal.appendChild(createPlaylistSelectionTitleBarNode(closeModalCallback));
+    MUSIC_DATA['playlists'].forEach(function (playlist) {
+      modal.appendChild(createPlaylistSelectionPlaylistNode(playlist, closeModalCallback));
+    });
+    return modal;
+  }
   function createSongItemNode (song) {
     var item = document.createElement('li');
     item.classList.add('music-item');
@@ -81,6 +131,11 @@
     var addButton = document.createElement('span');
     addButton.classList.add('music-item-button');
     addGlyphicon(addButton, 'plus-sign');
+    addButton.addEventListener('click', function (e) {
+      var contentView = document.getElementById('content-view');
+      contentView.appendChild(createPlaylistSelectionBackgroundNode());
+      contentView.appendChild(createPlaylistSelectionModalNode());
+    });
 
     item.appendChild(musicIcon);
     item.appendChild(createMusicTitleSubtitleNode(song['title'], song['artist']));
