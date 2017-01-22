@@ -47,9 +47,31 @@
       ele.removeChild(ele.lastChild);
     }
   }
+  function createSortButton (methodName) {
+    var button = document.createElement('button');
+    button.classList.add('purple-button');
+    button.classList.add('sort-method-button');
+
+    var text = document.createElement('span');
+    text.textContent = 'Sort by ' + methodName;
+
+    button.appendChild(text);
+
+    return button;
+  }
+  function createSortMethodBar () {
+    var bar = document.createElement('div');
+    bar.classList.add('sort-method-button-bar');
+
+    bar.appendChild(createSortButton('artist'));
+    bar.appendChild(createSortButton('title'));
+    return bar;
+  }
   function redrawLibraryContent () {
     var musicList = document.createElement('ul');
     musicList.classList.add('music-item-list');
+
+    musicList.appendChild(createSortMethodBar());
     window.MUSIC_DATA['songs'].forEach(function (song) {
       musicList.appendChild(createSongItemNode(song));
     });
@@ -63,13 +85,13 @@
 
     var playlistList = document.createElement('ul');
     playlistList.classList.add('music-item-list');
+    playlistList.appendChild(button);
     window.MUSIC_DATA['playlists'].forEach(function (playlist) {
       playlistList.appendChild(createPlaylistItemNode(playlist));
     });
 
     var contentView = document.getElementById('content-view');
     removeAllChildren(contentView);
-    contentView.appendChild(button);
     contentView.appendChild(playlistList);
   }
   function createPlaylistSelectionBackgroundNode () {
@@ -112,7 +134,7 @@
     }
 
     modal.appendChild(createPlaylistSelectionTitleBarNode(closeModalCallback));
-    MUSIC_DATA['playlists'].forEach(function (playlist) {
+    window.MUSIC_DATA['playlists'].forEach(function (playlist) {
       modal.appendChild(createPlaylistSelectionPlaylistNode(playlist, closeModalCallback));
     });
     return modal;

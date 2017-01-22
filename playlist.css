@@ -171,3 +171,13 @@ html, body {
   margin: 30px;
   display: block;
 }
+.sort-method-button-bar {
+  display: flex;
+  flex-direction: row;
+  margin-left: 10%;
+  margin-right: 10%;
+}
+.sort-method-button {
+  flex-grow: 1;
+  margin: 10px;
+}
