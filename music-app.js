@@ -74,13 +74,18 @@
     var musicIcon = document.createElement('div');
     musicIcon.classList.add('music-cover-thumbnail');
 
-    var expandButton = document.createElement('span');
-    expandButton.classList.add('music-item-button');
-    addGlyphicon(expandButton, 'chevron-right');
+    var playButton = document.createElement('span');
+    playButton.classList.add('music-item-button');
+    addGlyphicon(playButton, 'play');
+
+    var addButton = document.createElement('span');
+    addButton.classList.add('music-item-button');
+    addGlyphicon(addButton, 'plus-sign');
 
     item.appendChild(musicIcon);
     item.appendChild(createMusicTitleSubtitleNode(song['title'], song['artist']));
-    item.appendChild(expandButton);
+    item.appendChild(addButton);
+    item.appendChild(playButton);
 
     return item;
   }
@@ -143,11 +148,6 @@
   function addGlyphicon (ele, name) {
     ele.classList.add('glyphicon');
     ele.classList.add('glyphicon-' + name);
-  }
-  function createText (t) {
-    var ele = document.createElement('span');
-    ele.textContent = t;
-    return ele;
   }
 
   function initialize () {
