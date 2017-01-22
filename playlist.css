@@ -52,7 +52,6 @@ html, body {
 
 #content-view {
   background-color: #E8E0F4;
-  text-align: center;
   overflow: scroll;
   padding-top: 48px;
   position:static;
@@ -69,8 +68,10 @@ html, body {
   color: white;
   display:inline-block;
 }
-#new-playlist-button {
-  width:95%;
+.playlist-content-title {
+  color: #835797;
+  font-size: 200%;
+  margin-left: 30px;
 }
 .music-item-list {
   padding:0px;
@@ -171,17 +172,16 @@ html, body {
   margin: 30px;
   display: block;
 }
-.sort-method-button-bar {
+.content-view-button-bar {
   display: flex;
   flex-direction: row;
   margin-left: 10%;
   margin-right: 10%;
 }
-.sort-method-button {
+.content-view-button {
   flex-grow: 1;
   margin: 10px;
-
 }
-.sort-method-button:active {
+.content-view-button:active {
   box-shadow: inset 3px 3px white;
 }
