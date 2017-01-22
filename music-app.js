@@ -1,29 +1,30 @@
-(function main() {
+(function () {
+  'use strict';
   var currentTab = null;
-  function activateLibraryTab() {
+  function activateLibraryTab () {
     if (currentTab !== 'library') {
       currentTab = 'library';
       redraw();
     }
   }
 
-  function activatePlaylistsTab() {
+  function activatePlaylistsTab () {
     if (currentTab !== 'playlists') {
       currentTab = 'playlists';
       redraw();
     }
   }
 
-  function redraw() {
+  function redraw () {
     redrawTopBar();
-    if(currentTab === 'playlists') {
+    if (currentTab === 'playlists') {
       redrawPlaylistsContent();
-    } else if(currentTab === 'library') {
+    } else if (currentTab === 'library') {
       redrawLibraryContent();
     }
   }
 
-  function redrawTopBar() {
+  function redrawTopBar () {
     var buttonList = document.getElementById('top-bar-button-list');
     var buttonId = currentTab + '-button';
     for (var i = 0; i < buttonList.children.length; i++) {
@@ -36,15 +37,15 @@
     }
   }
 
-  function removeAllChildren(ele) {
-    while(ele.lastChild) {
+  function removeAllChildren (ele) {
+    while (ele.lastChild) {
       ele.removeChild(ele.lastChild);
     }
   }
-  function redrawLibraryContent() {
+  function redrawLibraryContent () {
     var musicList = document.createElement('ul');
     musicList.classList.add('music-item-list');
-    window.MUSIC_DATA['songs'].forEach(function(song) {
+    window.MUSIC_DATA['songs'].forEach(function (song) {
       musicList.appendChild(createSongItemNode(song));
     });
 
@@ -52,12 +53,12 @@
     removeAllChildren(contentView);
     contentView.appendChild(musicList);
   }
-  function redrawPlaylistsContent() {
+  function redrawPlaylistsContent () {
     var button = createNewPlaylistButtonNode();
 
     var playlistList = document.createElement('ul');
     playlistList.classList.add('music-item-list');
-    window.MUSIC_DATA['playlists'].forEach(function(playlist) {
+    window.MUSIC_DATA['playlists'].forEach(function (playlist) {
       playlistList.appendChild(createPlaylistItemNode(playlist));
     });
 
@@ -66,7 +67,7 @@
     contentView.appendChild(button);
     contentView.appendChild(playlistList);
   }
-  function createSongItemNode(song) {
+  function createSongItemNode (song) {
     var item = document.createElement('li');
     item.classList.add('music-item');
 
@@ -84,7 +85,7 @@
     return item;
   }
 
-  function createMusicTitleSubtitleNode(title, subtitle) {
+  function createMusicTitleSubtitleNode (title, subtitle) {
     var node = document.createElement('div');
     node.classList.add('music-title-subtitle');
     node.appendChild(createMusicTitleNode(title));
@@ -92,21 +93,21 @@
     return node;
   }
 
-  function createMusicTitleNode(text) {
+  function createMusicTitleNode (text) {
     var musicTitle = document.createElement('span');
     musicTitle.classList.add('music-title');
     musicTitle.textContent = text;
     return musicTitle;
   }
 
-  function createMusicSubtitleNode(text) {
+  function createMusicSubtitleNode (text) {
     var musicSubtitle = document.createElement('span');
     musicSubtitle.classList.add('music-subtitle');
     musicSubtitle.textContent = text;
     return musicSubtitle;
   }
 
-  function createNewPlaylistButtonNode() {
+  function createNewPlaylistButtonNode () {
     var button = document.createElement('button');
     button.id = 'new-playlist-button';
     button.classList.add('purple-button');
@@ -122,7 +123,7 @@
 
     return button;
   }
-  function createPlaylistItemNode(playlist) {
+  function createPlaylistItemNode (playlist) {
     var item = document.createElement('li');
     item.classList.add('music-item');
 
@@ -133,24 +134,22 @@
     expandButton.classList.add('music-item-button');
     addGlyphicon(expandButton, 'chevron-right');
 
-
     item.appendChild(musicIcon);
     item.appendChild(createMusicTitleSubtitleNode(playlist['name']));
     item.appendChild(expandButton);
 
     return item;
   }
-  function addGlyphicon(ele, name) {
+  function addGlyphicon (ele, name) {
     ele.classList.add('glyphicon');
     ele.classList.add('glyphicon-' + name);
   }
-  function createText(t) {
+  function createText (t) {
     var ele = document.createElement('span');
     ele.textContent = t;
     return ele;
   }
 
-
-  //activatePlaylistsTab();
+  // activatePlaylistsTab();
   activateLibraryTab();
 })();
