@@ -180,4 +180,8 @@ html, body {
 .sort-method-button {
   flex-grow: 1;
   margin: 10px;
+
+}
+.sort-method-button:active {
+  box-shadow: inset 3px 3px white;
 }
