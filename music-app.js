@@ -1,6 +1,7 @@
 (function () {
   'use strict';
   var currentTab = null;
+  var currentSortKey = 'artist';
 
   function popContent () {
     var contentView = document.getElementById('content-view');
@@ -42,20 +43,43 @@
     }
   }
 
+  function prepareSortValue (str) {
+    return str.trim().replace(/^The /, '').trim();
+  }
+  function executeSort (arr) {
+    return arr.slice().sort(function (a, b) {
+      var aValue = prepareSortValue(a[currentSortKey]);
+      var bValue = prepareSortValue(b[currentSortKey]);
+      return aValue.localeCompare(bValue);
+    });
+  }
+  function sortAndRedraw (sortKey) {
+    if (currentTab === 'library') {
+      if (sortKey !== currentSortKey) {
+        currentSortKey = sortKey;
+        redraw();
+      }
+    } else {
+      throw '[' + sortKey + '] sort is attempted when not in the right tab';
+    }
+  }
   function removeAllChildren (ele) {
     while (ele.lastChild) {
       ele.removeChild(ele.lastChild);
     }
   }
-  function createSortButton (methodName) {
+  function createSortButton (sortKey) {
     var button = document.createElement('button');
     button.classList.add('purple-button');
     button.classList.add('sort-method-button');
 
     var text = document.createElement('span');
-    text.textContent = 'Sort by ' + methodName;
+    text.textContent = 'Sort by ' + sortKey;
 
     button.appendChild(text);
+    button.addEventListener('click', function (e) {
+      sortAndRedraw(sortKey);
+    });
 
     return button;
   }
@@ -72,7 +96,7 @@
     musicList.classList.add('music-item-list');
 
     musicList.appendChild(createSortMethodBar());
-    window.MUSIC_DATA['songs'].forEach(function (song) {
+    executeSort(window.MUSIC_DATA['songs']).forEach(function (song) {
       musicList.appendChild(createSongItemNode(song));
     });
 
@@ -178,6 +202,7 @@
   function createMusicTitleNode (text) {
     var musicTitle = document.createElement('span');
     musicTitle.classList.add('music-title');
+    musicTitle.classList.add('text-cut-short');
     musicTitle.textContent = text;
     return musicTitle;
   }
@@ -185,6 +210,7 @@
   function createMusicSubtitleNode (text) {
     var musicSubtitle = document.createElement('span');
     musicSubtitle.classList.add('music-subtitle');
+    musicSubtitle.classList.add('text-cut-short');
     musicSubtitle.textContent = text;
     return musicSubtitle;
   }
