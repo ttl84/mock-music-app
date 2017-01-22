@@ -2,6 +2,8 @@
   'use strict';
   var currentTab = null;
   var currentSortKey = 'artist';
+  var currentSelectedSongID = null;
+  var currentSelectedPlaylistID = null;
 
   function popContent () {
     var contentView = document.getElementById('content-view');
@@ -118,6 +120,15 @@
     removeAllChildren(contentView);
     contentView.appendChild(playlistList);
   }
+  function executeAddToPlaylist () {
+    if (currentSelectedPlaylistID !== null && currentSelectedSongID !== null) {
+      window.MUSIC_DATA['playlists'].find(function match (playlist) {
+        return playlist['id'] === currentSelectedPlaylistID;
+      })['songs'].push(currentSelectedSongID);
+    }
+    currentSelectedSongID = null;
+    currentSelectedPlaylistID = null;
+  }
   function createPlaylistSelectionBackgroundNode () {
     var background = document.createElement('div');
     background.classList.add('modal-dim');
@@ -134,7 +145,10 @@
     var cancel = document.createElement('span');
     cancel.classList.add('playlist-selection-cancel');
     addGlyphicon(cancel, 'remove');
-    cancel.addEventListener('click', closeModalCallback);
+    cancel.addEventListener('click', function (e) {
+      executeAddToPlaylist();
+      closeModalCallback();
+    });
 
     titleBar.appendChild(title);
     titleBar.appendChild(cancel);
@@ -145,14 +159,18 @@
     ele.textContent = playlist['name'];
     ele.classList.add('playlist-selection-item');
     ele.classList.add('playlist-selection-row');
-    ele.addEventListener('click', closeModalCallback);
+    ele.addEventListener('click', function (e) {
+      currentSelectedPlaylistID = playlist['id'];
+      executeAddToPlaylist();
+      closeModalCallback();
+    });
     return ele;
   }
   function createPlaylistSelectionModalNode () {
     var modal = document.createElement('div');
     modal.classList.add('playlist-selection');
 
-    function closeModalCallback (e) {
+    function closeModalCallback () {
       popContent();
       popContent();
     }
@@ -178,6 +196,7 @@
     addButton.classList.add('music-item-button');
     addGlyphicon(addButton, 'plus-sign');
     addButton.addEventListener('click', function (e) {
+      currentSelectedSongID = song['id'];
       var contentView = document.getElementById('content-view');
       contentView.appendChild(createPlaylistSelectionBackgroundNode());
       contentView.appendChild(createPlaylistSelectionModalNode());
