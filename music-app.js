@@ -150,6 +150,16 @@
     return ele;
   }
 
-  // activatePlaylistsTab();
-  activateLibraryTab();
+  function initialize () {
+    var libraryButton = document.getElementById('library-button');
+    libraryButton.addEventListener('click', function (e) {
+      activateLibraryTab();
+    });
+    var playlistsButton = document.getElementById('playlists-button');
+    playlistsButton.addEventListener('click', function (e) {
+      activatePlaylistsTab();
+    });
+    activateLibraryTab();
+  }
+  initialize();
 })();
