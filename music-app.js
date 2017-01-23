@@ -63,6 +63,9 @@
         child.classList.remove('active');
       }
     }
+    if (currentTab === 'playlist-content') {
+      document.getElementById('playlists-button').classList.add('active');
+    }
   }
   function redrawLibraryContent () {
     var musicList = getMusicItemListInstance();
