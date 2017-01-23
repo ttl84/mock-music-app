@@ -83,8 +83,8 @@
   function redrawPlaylistListContent () {
     var button = createNewPlaylistButtonBarNode();
 
-    var playlistList = document.createElement('ul');
-    playlistList.classList.add('music-item-list');
+    var playlistList = getMusicItemListInstance();
+    removeAllChildren(playlistList);
     playlistList.appendChild(button);
     window.MUSIC_DATA['playlists'].forEach(function (playlist) {
       playlistList.appendChild(createPlaylistItemNode(playlist));
@@ -100,8 +100,8 @@
     });
     var songMap = createID2SongMap();
     var playlistTitle = createPlaylistTitleNode(playlist['name']);
-    var songList = document.createElement('ul');
-    songList.classList.add('music-item-list');
+    var songList = getMusicItemListInstance();
+    removeAllChildren(songList);
     songList.appendChild(playlistTitle);
     playlist['songs'].forEach(function (id) {
       songList.appendChild(createSongItemNode(songMap[id]));
