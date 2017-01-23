@@ -111,17 +111,13 @@
     contentView.appendChild(songList);
   }
   function redrawSearchContent () {
-    var resultList = getMusicItemListInstance();
-    removeAllChildren(resultList);
+    getSearchInputInstance().value = '';
+    removeAllChildren(getMusicItemListInstance());
 
     var contentView = document.getElementById('content-view');
     removeAllChildren(contentView);
     contentView.appendChild(getSearchBarInstance());
-    contentView.appendChild(resultList);
-
-    if (getSearchInputInstance().value !== '') {
-      redrawSearchResults();
-    }
+    contentView.appendChild(getMusicItemListInstance());
   }
   function redrawSearchResults () {
     var resultList = getMusicItemListInstance();
