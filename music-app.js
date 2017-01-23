@@ -1,9 +1,19 @@
 (function () {
   'use strict';
+
+  // states
   var currentTab = null;
   var currentSortKey = 'artist';
   var currentSelectedSongID = null;
   var currentSelectedPlaylistID = null;
+  var currentSearchTerm = '';
+  var currentPlaylistResults = [];
+  var currentSongResults = [];
+
+  // singleton instances
+  var currentMusicItemListInstance = null;
+  var currentSearchBarInstance = null;
+  var currentSearchInputInstance = null;
 
   function popContent () {
     var contentView = document.getElementById('content-view');
@@ -22,6 +32,12 @@
       redraw();
     }
   }
+  function activateSearchTab () {
+    if (currentTab !== 'search') {
+      currentTab = 'search';
+      redraw();
+    }
+  }
 
   function redraw () {
     redrawTopBar();
@@ -29,6 +45,8 @@
       redrawPlaylistListContent();
     } else if (currentTab === 'library') {
       redrawLibraryContent();
+    } else if (currentTab === 'search') {
+      redrawSearchContent();
     } else if (currentTab === 'playlist-content') {
       redrawPlaylistContent();
     }
@@ -47,8 +65,8 @@
     }
   }
   function redrawLibraryContent () {
-    var musicList = document.createElement('ul');
-    musicList.classList.add('music-item-list');
+    var musicList = getMusicItemListInstance();
+    removeAllChildren(musicList);
 
     musicList.appendChild(createSortMethodBar());
     executeSort(window.MUSIC_DATA['songs']).forEach(function (song) {
@@ -89,12 +107,33 @@
     removeAllChildren(contentView);
     contentView.appendChild(songList);
   }
-  function createID2SongMap () {
-    var songMap = [];
-    window.MUSIC_DATA['songs'].forEach(function (song) {
-      songMap[song['id']] = song;
-    });
-    return songMap;
+  function redrawSearchContent () {
+    var resultList = getMusicItemListInstance();
+    removeAllChildren(resultList);
+
+    var contentView = document.getElementById('content-view');
+    removeAllChildren(contentView);
+    contentView.appendChild(getSearchBarInstance());
+    contentView.appendChild(resultList);
+
+    if (getSearchInputInstance().value !== '') {
+      redrawSearchResults();
+    }
+  }
+  function redrawSearchResults () {
+    var resultList = getMusicItemListInstance();
+    removeAllChildren(resultList);
+
+    if (currentPlaylistResults.length > 0) {
+      currentPlaylistResults.forEach(function (playlist) {
+        resultList.appendChild(createPlaylistItemNode(playlist));
+      });
+    }
+    if (currentSongResults.length > 0) {
+      currentSongResults.forEach(function (song) {
+        resultList.appendChild(createSongItemNode(song));
+      });
+    }
   }
   function prepareSortValue (str) {
     return str.trim().replace(/^The /, '').trim();
@@ -104,6 +143,25 @@
       var aValue = prepareSortValue(a[currentSortKey]);
       var bValue = prepareSortValue(b[currentSortKey]);
       return aValue.localeCompare(bValue);
+    });
+  }
+  function executeAddToPlaylist () {
+    if (currentSelectedPlaylistID !== null && currentSelectedSongID !== null) {
+      window.MUSIC_DATA['playlists'].find(function match (playlist) {
+        return playlist['id'] === currentSelectedPlaylistID;
+      })['songs'].push(currentSelectedSongID);
+    }
+    currentSelectedSongID = null;
+    currentSelectedPlaylistID = null;
+  }
+  function executePlaylistSearch () {
+    return window.MUSIC_DATA['playlists'].filter(function match (playlist) {
+      return playlist['name'].search(currentSearchTerm) !== -1;
+    });
+  }
+  function executeSongSearch () {
+    return window.MUSIC_DATA['songs'].filter(function match (song) {
+      return song['title'].search(currentSearchTerm) !== -1 || song['artist'].search(currentSearchTerm) !== -1;
     });
   }
   function sortAndRedraw (sortKey) {
@@ -121,6 +179,51 @@
       ele.removeChild(ele.lastChild);
     }
   }
+  function getMusicItemListInstance () {
+    if (!currentMusicItemListInstance) {
+      currentMusicItemListInstance = document.createElement('ul');
+      currentMusicItemListInstance.classList.add('music-item-list');
+    }
+    return currentMusicItemListInstance;
+  }
+  function getSearchBarInstance () {
+    if (!currentSearchBarInstance) {
+      var bar = document.createElement('div');
+      bar.id = 'search-bar';
+      bar.classList.add('content-view-flex-row');
+      bar.appendChild(getSearchInputInstance());
+
+      currentSearchBarInstance = bar;
+    }
+    return currentSearchBarInstance;
+  }
+  function getSearchInputInstance () {
+    if (!currentSearchInputInstance) {
+      currentSearchInputInstance = createSearchInputNode();
+      currentSearchInputInstance.classList.add('content-view-flex-row-item');
+    }
+    return currentSearchInputInstance;
+  }
+  function createSearchInputNode () {
+    var input = document.createElement('input');
+    input.classList.add('search-bar');
+    input.setAttribute('placeholder', 'Search');
+    input.setAttribute('type', 'text');
+    input.addEventListener('input', function (e) {
+      currentSearchTerm = new RegExp(input.value, 'i');
+      currentPlaylistResults = executePlaylistSearch();
+      currentSongResults = executeSongSearch();
+      redrawSearchResults();
+    });
+    return input;
+  }
+  function createID2SongMap () {
+    var songMap = [];
+    window.MUSIC_DATA['songs'].forEach(function (song) {
+      songMap[song['id']] = song;
+    });
+    return songMap;
+  }
   function createPlaylistTitleNode (name) {
     var title = document.createElement('span');
     title.textContent = name;
@@ -130,7 +233,7 @@
   function createSortButton (sortKey) {
     var button = document.createElement('button');
     button.classList.add('purple-button');
-    button.classList.add('content-view-button');
+    button.classList.add('content-view-flex-row-item');
 
     var text = document.createElement('span');
     text.textContent = 'Sort by ' + sortKey;
@@ -144,22 +247,13 @@
   }
   function createSortMethodBar () {
     var bar = document.createElement('div');
-    bar.classList.add('content-view-button-bar');
+    bar.classList.add('content-view-flex-row');
 
     bar.appendChild(createSortButton('artist'));
     bar.appendChild(createSortButton('title'));
     return bar;
   }
 
-  function executeAddToPlaylist () {
-    if (currentSelectedPlaylistID !== null && currentSelectedSongID !== null) {
-      window.MUSIC_DATA['playlists'].find(function match (playlist) {
-        return playlist['id'] === currentSelectedPlaylistID;
-      })['songs'].push(currentSelectedSongID);
-    }
-    currentSelectedSongID = null;
-    currentSelectedPlaylistID = null;
-  }
   function createPlaylistSelectionBackgroundNode () {
     var background = document.createElement('div');
     background.classList.add('modal-dim');
@@ -268,7 +362,7 @@
   function createNewPlaylistButtonNode () {
     var button = document.createElement('button');
     button.classList.add('purple-button');
-    button.classList.add('content-view-button');
+    button.classList.add('content-view-flex-row-item');
 
     var icon = document.createElement('span');
     addGlyphicon(icon, 'plus');
@@ -282,7 +376,7 @@
   }
   function createNewPlaylistButtonBarNode () {
     var bar = document.createElement('div');
-    bar.classList.add('content-view-button-bar');
+    bar.classList.add('content-view-flex-row');
     bar.appendChild(createNewPlaylistButtonNode());
     return bar;
   }
@@ -321,6 +415,10 @@
     var playlistsButton = document.getElementById('playlists-button');
     playlistsButton.addEventListener('click', function (e) {
       activatePlaylistsTab();
+    });
+    var searchButton = document.getElementById('search-button');
+    searchButton.addEventListener('click', function (e) {
+      activateSearchTab();
     });
     activateLibraryTab();
   }
