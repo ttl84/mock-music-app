@@ -1,5 +1,19 @@
 $(function () {
   'use strict'
+  // states
+  var currentTab = null
+  var currentSortKey = 'artist'
+  var currentSelectedSongID = null
+  var currentSelectedPlaylistID = null
+  var currentSearchTerm = ''
+  var currentPlaylistResults = []
+  var currentSongResults = []
+
+  // singleton instances
+  var currentMusicItemListInstance = null
+  var currentSearchBarInstance = null
+  var currentSearchInputInstance = null
+
   $('#library-button').click(function (e) {
     activateLibraryTab()
   })
@@ -17,19 +31,6 @@ $(function () {
   } else if (window.location.href.match(/\/search/)) {
     activateSearchTab()
   }
-  // states
-  var currentTab = null
-  var currentSortKey = 'artist'
-  var currentSelectedSongID = null
-  var currentSelectedPlaylistID = null
-  var currentSearchTerm = ''
-  var currentPlaylistResults = []
-  var currentSongResults = []
-
-  // singleton instances
-  var currentMusicItemListInstance = null
-  var currentSearchBarInstance = null
-  var currentSearchInputInstance = null
 
   function popContent () {
     var contentView = document.getElementById('content-view')
