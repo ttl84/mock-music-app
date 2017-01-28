@@ -1,6 +1,22 @@
 $(function () {
   'use strict'
+  $('#library-button').click(function (e) {
+    activateLibraryTab()
+  })
+  $('#playlists-button').click(function (e) {
+    activatePlaylistsTab()
+  })
+  $('#search-button').click(function (e) {
+    activateSearchTab()
+  })
 
+  if (window.location.href.match(/\/playlists/)) {
+    activatePlaylistsTab()
+  } else if (window.location.href.match(/\/library/)) {
+    activateLibraryTab()
+  } else if (window.location.href.match(/\/search/)) {
+    activateSearchTab()
+  }
   // states
   var currentTab = null
   var currentSortKey = 'artist'
@@ -409,21 +425,4 @@ $(function () {
     ele.classList.add('glyphicon')
     ele.classList.add('glyphicon-' + name)
   }
-
-  function initialize () {
-    var libraryButton = document.getElementById('library-button')
-    libraryButton.addEventListener('click', function (e) {
-      activateLibraryTab()
-    })
-    var playlistsButton = document.getElementById('playlists-button')
-    playlistsButton.addEventListener('click', function (e) {
-      activatePlaylistsTab()
-    })
-    var searchButton = document.getElementById('search-button')
-    searchButton.addEventListener('click', function (e) {
-      activateSearchTab()
-    })
-    activateLibraryTab()
-  }
-  initialize()
 })
