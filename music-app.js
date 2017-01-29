@@ -494,6 +494,8 @@ $(function () {
           }
         }
       })
+    } else {
+      throw "playlist or song is not selected"
     }
   }
 
