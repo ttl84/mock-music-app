@@ -10,18 +10,17 @@ var router = new Router()
 router.route({
   pattern: /^\/$/,
   callback: function (request, response) {
-    console.log('begin redirect')
+    console.log('no path received, redirecting')
     response.statusCode = 301
     response.setHeader('location', '/playlists')
     response.end()
-    console.log('end redirect')
   }
 })
 
 router.route({
   pattern: /^\/(playlists|library|search)$/,
   callback: function (request, response) {
-    console.log('begin html')
+    console.log('tab path received, sending html')
     response.statusCode = 200
     response.setHeader('Content-Type', 'text/html')
     var stream = fs.createReadStream('playlist.html')
@@ -32,6 +31,7 @@ router.route({
 router.route({
   pattern: /^\/playlist\.css$/,
   callback: function (request, response) {
+    console.log('css path received, sending css')
     response.statusCode = 200
     response.setHeader('content-type', 'text/css')
     var stream = fs.createReadStream('playlist.css')
@@ -42,6 +42,7 @@ router.route({
 router.route({
   pattern: /^\/music-app\.js$/,
   callback: function (request, response) {
+    console.log('script path received, sending css')
     response.statusCode = 200
     response.setHeader('content-type', 'application/javascript')
     var stream = fs.createReadStream('music-app.js')
@@ -50,19 +51,10 @@ router.route({
 })
 
 router.route({
-  pattern: /^\/music-data\.js$/,
-  callback: function (request, response) {
-    response.statusCode = 200
-    response.setHeader('content-type', 'application/javascript')
-    var stream = fs.createReadStream('music-data.js')
-    stream.pipe(response)
-  }
-})
-
-router.route({
   pattern: /^\/api\/songs$/,
   method: 'GET',
   callback: function (request, response) {
+    console.log('GET songs received, sending songs')
     response.statusCode = 200
     response.setHeader('content-type', 'application/json')
     var stream = fs.createReadStream('songs.json')
@@ -74,6 +66,7 @@ router.route({
   pattern: /^\/api\/playlists$/,
   method: 'GET',
   callback: function (request, response) {
+    console.log('GET playlists received, sending playlists')
     response.statusCode = 200
     response.setHeader('content-type', 'application/json')
     var stream = fs.createReadStream('playlists.json')
