@@ -103,17 +103,19 @@ $(function () {
     })
   }
   function redrawPlaylistContent () {
-    var playlistsPromise = new Promise(getPlaylists)
-    var songsPromise = new Promise(getSongs)
-
-    Promise.all([playlistsPromise, songsPromise]).then(function (values) {
-      var playlists = values[0]
-      var songs = values[1]
-
-      var playlist = playlists.find(function (playlist) {
+    var playlistPromise = new Promise(getPlaylists).then(function (playlists) {
+      return playlists.find(function (playlist) {
         return playlist['id'] === currentSelectedPlaylistID
       })
-      var songMap = createID2SongMap(songs)
+    })
+    var songmapPromise = new Promise(getSongs).then(function (songs) {
+      return createID2SongMap(songs)
+    })
+
+    Promise.all([playlistPromise, songmapPromise]).then(function (values) {
+      var playlist = values[0]
+      var songMap = values[1]
+
       var playlistTitle = createPlaylistTitleNode(playlist['name'])
       var songList = document.createElement('ul')
       songList.classList.add('music-item-list')
@@ -125,7 +127,6 @@ $(function () {
       removeAllChildren(contentView)
       contentView.appendChild(songList)
     })
-
   }
   function redrawSearchContent () {
     var resultList = getMusicItemListInstance()
