@@ -385,11 +385,29 @@ $(function () {
     musicSubtitle.textContent = text
     return musicSubtitle
   }
-
-  function createNewPlaylistButtonNode () {
+  function createFlexInputFieldNode () {
+    var input = document.createElement('input')
+    input.classList.add('content-view-flex-row-item')
+    input.classList.add('search-bar')
+    return input
+  }
+  function createFlexButtonNode () {
     var button = document.createElement('button')
     button.classList.add('purple-button')
     button.classList.add('content-view-flex-row-item')
+    return button
+  }
+  function createFlexBarNode (type) {
+    if (!type) {
+      type = 'div'
+    }
+    var bar = document.createElement('div')
+    bar.classList.add('content-view-flex-row')
+    return bar
+  }
+
+  function createNewPlaylistButtonNode () {
+    var button = createFlexButtonNode()
 
     var icon = document.createElement('span')
     addGlyphicon(icon, 'plus')
@@ -402,9 +420,38 @@ $(function () {
     return button
   }
   function createNewPlaylistButtonBarNode () {
-    var bar = document.createElement('div')
-    bar.classList.add('content-view-flex-row')
-    bar.appendChild(createNewPlaylistButtonNode())
+    var bar = createFlexBarNode()
+
+    var newPlaylistButton = createNewPlaylistButtonNode()
+    newPlaylistButton.addEventListener('click', function (e) {
+      var form = document.createElement('form')
+      form.classList.add('content-view-flex-row-item')
+
+      var inputField = createFlexInputFieldNode()
+
+      var bar1 = createFlexBarNode()
+      var bar2 = createFlexBarNode()
+
+      var submitButton = createFlexButtonNode()
+      submitButton.textContent = 'create'
+      submitButton.addEventListener('click', function (e) {
+
+      })
+      var cancelButton = createFlexButtonNode()
+      cancelButton.textContent = 'cancel'
+      cancelButton.addEventListener('click', function (e) {
+
+      })
+
+      bar.removeChild(newPlaylistButton)
+      bar.appendChild(form)
+      form.appendChild(bar1)
+      form.appendChild(bar2)
+      bar1.appendChild(inputField)
+      bar2.appendChild(submitButton)
+      bar2.appendChild(cancelButton)
+    })
+    bar.appendChild(newPlaylistButton)
     return bar
   }
   function createPlaylistItemNode (playlist) {
