@@ -91,13 +91,15 @@ $(function () {
     var playlistList = document.createElement('ul')
     playlistList.classList.add('music-item-list')
     playlistList.appendChild(button)
-    MUSIC_DATA['playlists'].forEach(function (playlist) {
-      playlistList.appendChild(createPlaylistItemNode(playlist))
-    })
+    getPlaylists(function (playlists) {
+      playlists.forEach(function (playlist) {
+        playlistList.appendChild(createPlaylistItemNode(playlist))
+      })
 
-    var contentView = document.getElementById('content-view')
-    removeAllChildren(contentView)
-    contentView.appendChild(playlistList)
+      var contentView = document.getElementById('content-view')
+      removeAllChildren(contentView)
+      contentView.appendChild(playlistList)
+    })
   }
   function redrawPlaylistContent () {
     var playlist = MUSIC_DATA['playlists'].find(function (playlist) {
@@ -415,10 +417,11 @@ $(function () {
     ele.classList.add('glyphicon-' + name)
   }
 
-  function getSongs (success) {
+  function getSongs (success, error) {
     if (MUSIC_DATA['songs'] === undefined) {
       $.ajax({
         url: '/api/songs',
+        method: 'GET',
         dataType: 'json',
         success: function (data) {
           MUSIC_DATA['songs'] = data['songs']
@@ -430,6 +433,25 @@ $(function () {
       })
     } else {
       success(MUSIC_DATA['songs'])
+    }
+  }
+
+  function getPlaylists (success, error) {
+    if (MUSIC_DATA['playlists'] === undefined) {
+      $.ajax({
+        url: '/api/playlists',
+        method: 'GET',
+        dataType: 'json',
+        success: function (data) {
+          MUSIC_DATA['playlists'] = data['playlists']
+          success(MUSIC_DATA['playlists'])
+        },
+        error: function (jqxhr, description, errorThrown) {
+          error(description)
+        }
+      })
+    } else {
+      success(MUSIC_DATA['playlists'])
     }
   }
 

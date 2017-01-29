@@ -64,6 +64,13 @@ route(/^\/api\/songs$/, function (request, response) {
   stream.pipe(response)
 })
 
+route(/^\/api\/playlists$/, function (request, response) {
+  response.statusCode = 200
+  response.setHeader('content-type', 'application/json')
+  var stream = fs.createReadStream('playlists.json')
+  stream.pipe(response)
+})
+
 server.on('request', function (request, response) {
   response.setHeader('cache-control', 'public, max-age=1800')
 
