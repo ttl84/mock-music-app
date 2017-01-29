@@ -1,7 +1,9 @@
 // Import the http library
 const http = require('http')
 const fs = require('fs')
+const querystring = require('querystring')
 const Router = require('./router.js')
+const PlaylistAPI = require('./playlist-api.js')
 // Create a server and provide it a callback to be executed for every HTTP request
 // coming into localhost:3000.
 var server = http.createServer()
@@ -71,6 +73,32 @@ router.route({
     response.setHeader('content-type', 'application/json')
     var stream = fs.createReadStream('playlists.json')
     stream.pipe(response)
+  }
+})
+
+router.route({
+  pattern: /^\/api\/playlists$/,
+  method: 'POST',
+  callback: function (request, response) {
+    var chunks = []
+    request.on('data', function (buf) {
+      chunks.push(buf)
+    })
+    request.on('end', function () {
+      var buf = Buffer.concat(chunks)
+      var message = querystring.parse(buf.toString())
+      if (message.method === 'add-song-to-playlist') {
+        if (PlaylistAPI.addSongToPlaylist(message)) {
+          response.statusCode = 201
+          response.setHeader('content-type', 'application/json')
+          response.end('{}')
+        } else {
+          response.statusCode = 400
+          response.setHeader('content-type', 'application/json')
+          response.end('{}')
+        }
+      }
+    })
   }
 })
 

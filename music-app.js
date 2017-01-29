@@ -164,15 +164,7 @@ $(function () {
       return aValue.localeCompare(bValue)
     })
   }
-  function executeAddToPlaylist () {
-    if (currentSelectedPlaylistID !== null && currentSelectedSongID !== null) {
-      MUSIC_DATA['playlists'].find(function match (playlist) {
-        return playlist['id'] === currentSelectedPlaylistID
-      })['songs'].push(currentSelectedSongID)
-    }
-    currentSelectedSongID = null
-    currentSelectedPlaylistID = null
-  }
+
   function executePlaylistSearch () {
     return MUSIC_DATA['playlists'].filter(function match (playlist) {
       return playlist['name'].search(currentSearchTerm) !== -1
@@ -290,7 +282,6 @@ $(function () {
     cancel.classList.add('playlist-selection-cancel')
     addGlyphicon(cancel, 'remove')
     cancel.addEventListener('click', function (e) {
-      executeAddToPlaylist()
       closeModalCallback()
     })
 
@@ -305,8 +296,22 @@ $(function () {
     ele.classList.add('playlist-selection-row')
     ele.addEventListener('click', function (e) {
       currentSelectedPlaylistID = playlist['id']
-      executeAddToPlaylist()
-      closeModalCallback()
+      ajaxAddToPlaylist(function (response) {
+        getPlaylists(function (playlists) {
+          MUSIC_DATA['playlists'].find(function match (playlist) {
+            return playlist['id'] === currentSelectedPlaylistID
+          })['songs'].push(currentSelectedSongID)
+          currentSelectedSongID = null
+          currentSelectedPlaylistID = null
+          closeModalCallback()
+        }, function error (err) {
+          currentSelectedSongID = null
+          currentSelectedPlaylistID = null
+          closeModalCallback()
+          console.log('ajax error: ' + err)
+        })
+
+      })
     })
     return ele
   }
@@ -320,9 +325,12 @@ $(function () {
     }
 
     modal.appendChild(createPlaylistSelectionTitleBarNode(closeModalCallback))
-    MUSIC_DATA['playlists'].forEach(function (playlist) {
-      modal.appendChild(createPlaylistSelectionPlaylistNode(playlist, closeModalCallback))
+    getPlaylists(function (playlists) {
+      playlists.forEach(function (playlist) {
+        modal.appendChild(createPlaylistSelectionPlaylistNode(playlist, closeModalCallback))
+      })
     })
+
     return modal
   }
   function createSongItemNode (song) {
@@ -461,6 +469,31 @@ $(function () {
       })
     } else {
       success(MUSIC_DATA['playlists'])
+    }
+  }
+
+  function ajaxAddToPlaylist (success, error) {
+    if (currentSelectedPlaylistID !== null && currentSelectedSongID !== null) {
+      $.ajax({
+        url: '/api/playlists',
+        method: 'POST',
+        data: {
+          'method': 'add-song-to-playlist',
+          'playlist-id': currentSelectedPlaylistID,
+          'song-id': currentSelectedSongID
+        },
+        dataType: 'json',
+        success: function (data) {
+          if (success !== undefined) {
+            success(data)
+          }
+        },
+        error: function (jqxhr, description, errorThrown) {
+          if (error !== undefined) {
+            error(errorThrown)
+          }
+        }
+      })
     }
   }
 
