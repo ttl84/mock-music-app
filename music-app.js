@@ -14,24 +14,6 @@ $(function () {
   var currentSearchBarInstance = null
   var currentSearchInputInstance = null
 
-  $('#library-button').click(function (e) {
-    activateLibraryTab()
-  })
-  $('#playlists-button').click(function (e) {
-    activatePlaylistsTab()
-  })
-  $('#search-button').click(function (e) {
-    activateSearchTab()
-  })
-
-  if (window.location.href.match(/\/playlists/)) {
-    activatePlaylistsTab()
-  } else if (window.location.href.match(/\/library/)) {
-    activateLibraryTab()
-  } else if (window.location.href.match(/\/search/)) {
-    activateSearchTab()
-  }
-
   function popContent () {
     var contentView = document.getElementById('content-view')
     contentView.removeChild(contentView.lastChild)
@@ -39,6 +21,7 @@ $(function () {
   function activateLibraryTab () {
     if (currentTab !== 'library') {
       currentTab = 'library'
+      window.history.pushState({}, 'hello', 'library')
       redraw()
     }
   }
@@ -46,12 +29,14 @@ $(function () {
   function activatePlaylistsTab () {
     if (currentTab !== 'playlists') {
       currentTab = 'playlists'
+      window.history.pushState({}, 'hello', 'playlists')
       redraw()
     }
   }
   function activateSearchTab () {
     if (currentTab !== 'search') {
       currentTab = 'search'
+      window.history.pushState({}, 'hello', 'search')
       redraw()
     }
   }
@@ -426,4 +411,30 @@ $(function () {
     ele.classList.add('glyphicon')
     ele.classList.add('glyphicon-' + name)
   }
+
+  $('#library-button').click(function (e) {
+    activateLibraryTab()
+  })
+  $('#playlists-button').click(function (e) {
+    activatePlaylistsTab()
+  })
+  $('#search-button').click(function (e) {
+    activateSearchTab()
+  })
+
+  function switchTabBasedOnPath () {
+    if (window.location.pathname === '/playlists') {
+      activatePlaylistsTab()
+    } else if (window.location.pathname === '/library') {
+      activateLibraryTab()
+    } else if (window.location.pathname === '/search') {
+      activateSearchTab()
+    }
+  }
+
+  switchTabBasedOnPath()
+
+  window.addEventListener('popstate', function () {
+    switchTabBasedOnPath()
+  })
 })
