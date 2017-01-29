@@ -57,6 +57,13 @@ route(/^\/music-data\.js$/, function (request, response) {
   stream.pipe(response)
 })
 
+route(/^\/api\/songs$/, function (request, response) {
+  response.statusCode = 200
+  response.setHeader('content-type', 'application/json')
+  var stream = fs.createReadStream('songs.json')
+  stream.pipe(response)
+})
+
 server.on('request', function (request, response) {
   response.setHeader('cache-control', 'public, max-age=1800')
 

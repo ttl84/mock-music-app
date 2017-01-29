@@ -8,6 +8,8 @@ $(function () {
   var currentSearchTerm = ''
   var currentPlaylistResults = []
   var currentSongResults = []
+  var MUSIC_DATA = {
+  }
 
   // singleton instances
   var currentMusicItemListInstance = null
@@ -74,13 +76,14 @@ $(function () {
     removeAllChildren(musicList)
 
     musicList.appendChild(createSortMethodBar())
-    executeSort(window.MUSIC_DATA['songs']).forEach(function (song) {
-      musicList.appendChild(createSongItemNode(song))
+    getSongs(function (songs) {
+      executeSort(songs).forEach(function (song) {
+        musicList.appendChild(createSongItemNode(song))
+      })
+      var contentView = document.getElementById('content-view')
+      removeAllChildren(contentView)
+      contentView.appendChild(musicList)
     })
-
-    var contentView = document.getElementById('content-view')
-    removeAllChildren(contentView)
-    contentView.appendChild(musicList)
   }
   function redrawPlaylistListContent () {
     var button = createNewPlaylistButtonBarNode()
@@ -88,7 +91,7 @@ $(function () {
     var playlistList = document.createElement('ul')
     playlistList.classList.add('music-item-list')
     playlistList.appendChild(button)
-    window.MUSIC_DATA['playlists'].forEach(function (playlist) {
+    MUSIC_DATA['playlists'].forEach(function (playlist) {
       playlistList.appendChild(createPlaylistItemNode(playlist))
     })
 
@@ -97,7 +100,7 @@ $(function () {
     contentView.appendChild(playlistList)
   }
   function redrawPlaylistContent () {
-    var playlist = window.MUSIC_DATA['playlists'].find(function (playlist) {
+    var playlist = MUSIC_DATA['playlists'].find(function (playlist) {
       return playlist['id'] === currentSelectedPlaylistID
     })
     var songMap = createID2SongMap()
@@ -152,7 +155,7 @@ $(function () {
   }
   function executeAddToPlaylist () {
     if (currentSelectedPlaylistID !== null && currentSelectedSongID !== null) {
-      window.MUSIC_DATA['playlists'].find(function match (playlist) {
+      MUSIC_DATA['playlists'].find(function match (playlist) {
         return playlist['id'] === currentSelectedPlaylistID
       })['songs'].push(currentSelectedSongID)
     }
@@ -160,12 +163,12 @@ $(function () {
     currentSelectedPlaylistID = null
   }
   function executePlaylistSearch () {
-    return window.MUSIC_DATA['playlists'].filter(function match (playlist) {
+    return MUSIC_DATA['playlists'].filter(function match (playlist) {
       return playlist['name'].search(currentSearchTerm) !== -1
     })
   }
   function executeSongSearch () {
-    return window.MUSIC_DATA['songs'].filter(function match (song) {
+    return MUSIC_DATA['songs'].filter(function match (song) {
       return song['title'].search(currentSearchTerm) !== -1 || song['artist'].search(currentSearchTerm) !== -1
     })
   }
@@ -224,7 +227,7 @@ $(function () {
   }
   function createID2SongMap () {
     var songMap = []
-    window.MUSIC_DATA['songs'].forEach(function (song) {
+    MUSIC_DATA['songs'].forEach(function (song) {
       songMap[song['id']] = song
     })
     return songMap
@@ -306,7 +309,7 @@ $(function () {
     }
 
     modal.appendChild(createPlaylistSelectionTitleBarNode(closeModalCallback))
-    window.MUSIC_DATA['playlists'].forEach(function (playlist) {
+    MUSIC_DATA['playlists'].forEach(function (playlist) {
       modal.appendChild(createPlaylistSelectionPlaylistNode(playlist, closeModalCallback))
     })
     return modal
@@ -410,6 +413,24 @@ $(function () {
   function addGlyphicon (ele, name) {
     ele.classList.add('glyphicon')
     ele.classList.add('glyphicon-' + name)
+  }
+
+  function getSongs (success) {
+    if (MUSIC_DATA['songs'] === undefined) {
+      $.ajax({
+        url: '/api/songs',
+        dataType: 'json',
+        success: function (data) {
+          MUSIC_DATA['songs'] = data['songs']
+          success(MUSIC_DATA['songs'])
+        },
+        error: function (jqxhr, description, errorThrown) {
+          error(description)
+        }
+      })
+    } else {
+      success(MUSIC_DATA['songs'])
+    }
   }
 
   $('#library-button').click(function (e) {
