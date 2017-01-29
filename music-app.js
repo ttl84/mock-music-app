@@ -102,20 +102,29 @@ $(function () {
     })
   }
   function redrawPlaylistContent () {
-    var playlist = MUSIC_DATA['playlists'].find(function (playlist) {
-      return playlist['id'] === currentSelectedPlaylistID
+    var playlistsPromise = new Promise(getPlaylists)
+    var songsPromise = new Promise(getSongs)
+
+    Promise.all([playlistsPromise, songsPromise]).then(function (values) {
+      var playlists = values[0]
+      var songs = values[1]
+
+      var playlist = playlists.find(function (playlist) {
+        return playlist['id'] === currentSelectedPlaylistID
+      })
+      var songMap = createID2SongMap(songs)
+      var playlistTitle = createPlaylistTitleNode(playlist['name'])
+      var songList = document.createElement('ul')
+      songList.classList.add('music-item-list')
+      songList.appendChild(playlistTitle)
+      playlist['songs'].forEach(function (id) {
+        songList.appendChild(createSongItemNode(songMap[id]))
+      })
+      var contentView = document.getElementById('content-view')
+      removeAllChildren(contentView)
+      contentView.appendChild(songList)
     })
-    var songMap = createID2SongMap()
-    var playlistTitle = createPlaylistTitleNode(playlist['name'])
-    var songList = document.createElement('ul')
-    songList.classList.add('music-item-list')
-    songList.appendChild(playlistTitle)
-    playlist['songs'].forEach(function (id) {
-      songList.appendChild(createSongItemNode(songMap[id]))
-    })
-    var contentView = document.getElementById('content-view')
-    removeAllChildren(contentView)
-    contentView.appendChild(songList)
+
   }
   function redrawSearchContent () {
     var resultList = getMusicItemListInstance()
@@ -227,9 +236,9 @@ $(function () {
     })
     return input
   }
-  function createID2SongMap () {
+  function createID2SongMap (songs) {
     var songMap = []
-    MUSIC_DATA['songs'].forEach(function (song) {
+    songs.forEach(function (song) {
       songMap[song['id']] = song
     })
     return songMap
