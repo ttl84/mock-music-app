@@ -166,13 +166,13 @@ $(function () {
     })
   }
 
-  function executePlaylistSearch () {
-    return MUSIC_DATA['playlists'].filter(function match (playlist) {
+  function executePlaylistSearch (playlists) {
+    return playlists.filter(function match (playlist) {
       return playlist['name'].search(currentSearchTerm) !== -1
     })
   }
-  function executeSongSearch () {
-    return MUSIC_DATA['songs'].filter(function match (song) {
+  function executeSongSearch (songs) {
+    return songs.filter(function match (song) {
       return song['title'].search(currentSearchTerm) !== -1 || song['artist'].search(currentSearchTerm) !== -1
     })
   }
@@ -223,9 +223,15 @@ $(function () {
     input.setAttribute('type', 'text')
     input.addEventListener('input', function (e) {
       currentSearchTerm = new RegExp(input.value, 'i')
-      currentPlaylistResults = executePlaylistSearch()
-      currentSongResults = executeSongSearch()
-      redrawSearchResults()
+      var playlistSearchPromise = new Promise(getPlaylists).then(function (playlists) {
+        currentPlaylistResults = executePlaylistSearch(playlists)
+      })
+      var songSearchPromise = new Promise(getSongs).then(function (songs) {
+        currentSongResults = executeSongSearch(songs)
+      })
+      Promise.all([playlistSearchPromise, songSearchPromise]).then(function () {
+        redrawSearchResults()
+      })
     })
     return input
   }
