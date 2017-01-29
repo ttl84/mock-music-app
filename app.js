@@ -97,6 +97,19 @@ router.route({
           response.setHeader('content-type', 'application/json')
           response.end('{}')
         }
+      } else if (message.method === 'add-new-playlist') {
+        var result = PlaylistAPI.addNewPlaylist()
+        if (result['status'] === 'ok') {
+          response.statusCode = 201
+        } else if (result['status'] === 'error') {
+          if (result['blame'] === 'client') {
+            response.statusCode = 400
+          } else {
+            response.statusCode = 500
+          }
+        }
+        response.setHeader('content-type', 'application/json')
+        response.end(JSON.stringify(result))
       }
     })
   }

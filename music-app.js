@@ -403,9 +403,17 @@ $(function () {
     if (!type) {
       type = 'div'
     }
-    var bar = document.createElement('div')
+    var bar = document.createElement(type)
     bar.classList.add('content-view-flex-row')
     return bar
+  }
+  function createFlexBarItemNode (type) {
+    if (!type) {
+      type = 'div'
+    }
+    var item = document.createElement(type)
+    item.classList.add('content-view-flex-row-item')
+    return item
   }
 
   function createNewPlaylistButtonNode () {
@@ -425,44 +433,56 @@ $(function () {
     var bar = createFlexBarNode()
 
     var newPlaylistButton = createNewPlaylistButtonNode()
+    bar.appendChild(newPlaylistButton)
     newPlaylistButton.addEventListener('click', function (e) {
       var form = document.createElement('form')
       form.classList.add('content-view-flex-row-item')
+      bar.removeChild(newPlaylistButton)
+      bar.appendChild(form)
 
-      var inputField = createFlexInputFieldNode()
+      var errorBar = createFlexBarNode()
+      var errorMessageArea = createFlexBarItemNode('span')
+      errorMessageArea.classList.add('error-text')
+      errorBar.appendChild(errorMessageArea)
 
       var bar1 = createFlexBarNode()
+      form.appendChild(bar1)
+
+      var inputField = createFlexInputFieldNode()
+      bar1.appendChild(inputField)
+
       var bar2 = createFlexBarNode()
+      form.appendChild(bar2)
 
       var submitButton = createFlexButtonNode()
+      bar2.appendChild(submitButton)
       submitButton.textContent = 'create'
       submitButton.setAttribute('type', 'button')
       submitButton.addEventListener('click', function (e) {
         if (typeof (inputField.value) === 'string' && inputField.value !== '') {
           currentPendingPlaylistName = inputField.value
-          ajaxAddNewPlaylist()
-          bar.removeChild(form)
-          bar.appendChild(newPlaylistButton)
+          ajaxAddNewPlaylist(function () {
+            bar.removeChild(form)
+            bar.appendChild(newPlaylistButton)
+          }, function (jqxhr, description, err) {
+            errorMessageArea.textContent = JSON.stringify(err)
+            form.insertBefore(errorBar, bar1)
+          })
+        } else {
+          errorMessageArea.textContent = 'empty name is not allowed'
+          form.insertBefore(errorBar, bar1)
         }
       })
 
       var cancelButton = createFlexButtonNode()
+      bar2.appendChild(cancelButton)
       cancelButton.textContent = 'cancel'
       cancelButton.setAttribute('type', 'button')
       cancelButton.addEventListener('click', function (e) {
         bar.removeChild(form)
         bar.appendChild(newPlaylistButton)
       })
-
-      bar.removeChild(newPlaylistButton)
-      bar.appendChild(form)
-      form.appendChild(bar1)
-      form.appendChild(bar2)
-      bar1.appendChild(inputField)
-      bar2.appendChild(submitButton)
-      bar2.appendChild(cancelButton)
     })
-    bar.appendChild(newPlaylistButton)
     return bar
   }
   function createPlaylistItemNode (playlist) {
@@ -574,7 +594,7 @@ $(function () {
         },
         error: function (jqxhr, description, errorThrown) {
           if (error !== undefined) {
-            error(errorThrown)
+            error(jqxhr, description, errorThrown)
           }
         }
       })

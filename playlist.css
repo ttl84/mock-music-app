@@ -192,3 +192,6 @@ html, body {
   color: #808080;
   border: 1px solid #808080;
 }
+.error-text {
+  color: red;
+}
