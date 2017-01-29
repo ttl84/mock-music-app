@@ -8,6 +8,7 @@ $(function () {
   var currentSearchTerm = ''
   var currentPlaylistResults = []
   var currentSongResults = []
+  var currentPendingPlaylistName = null
   var MUSIC_DATA = {
   }
 
@@ -389,6 +390,7 @@ $(function () {
     var input = document.createElement('input')
     input.classList.add('content-view-flex-row-item')
     input.classList.add('search-bar')
+    input.setAttribute('type', 'text')
     return input
   }
   function createFlexButtonNode () {
@@ -434,13 +436,22 @@ $(function () {
 
       var submitButton = createFlexButtonNode()
       submitButton.textContent = 'create'
+      submitButton.setAttribute('type', 'button')
       submitButton.addEventListener('click', function (e) {
-
+        if (typeof (inputField.value) === 'string' && inputField.value !== '') {
+          currentPendingPlaylistName = inputField.value
+          ajaxAddNewPlaylist()
+          bar.removeChild(form)
+          bar.appendChild(newPlaylistButton)
+        }
       })
+
       var cancelButton = createFlexButtonNode()
       cancelButton.textContent = 'cancel'
+      cancelButton.setAttribute('type', 'button')
       cancelButton.addEventListener('click', function (e) {
-
+        bar.removeChild(form)
+        bar.appendChild(newPlaylistButton)
       })
 
       bar.removeChild(newPlaylistButton)
@@ -543,6 +554,32 @@ $(function () {
       })
     } else {
       throw "playlist or song is not selected"
+    }
+  }
+
+  function ajaxAddNewPlaylist (success, error) {
+    if (typeof (currentPendingPlaylistName) === 'string' && currentPendingPlaylistName !== '') {
+      $.ajax({
+        url: '/api/playlists',
+        method: 'POST',
+        data: {
+          'method': 'add-new-playlist',
+          'playlist-name': currentPendingPlaylistName
+        },
+        dataType: 'json',
+        success: function (data) {
+          if (success !== undefined) {
+            success(data)
+          }
+        },
+        error: function (jqxhr, description, errorThrown) {
+          if (error !== undefined) {
+            error(errorThrown)
+          }
+        }
+      })
+    } else {
+      throw "playlist name is not string"
     }
   }
 
