@@ -471,7 +471,7 @@ $(function () {
             bar.removeChild(form)
             bar.appendChild(newPlaylistButton)
             redraw()
-          }, function (jqxhr, description, err) {
+          }, function (err) {
             errorMessageArea.textContent = JSON.stringify(err)
             form.insertBefore(errorBar, bar1)
           })
@@ -601,7 +601,7 @@ $(function () {
         },
         error: function (jqxhr, description, errorThrown) {
           if (error !== undefined) {
-            error(jqxhr, description, errorThrown)
+            error(jqxhr.responseJSON)
           }
         }
       })
