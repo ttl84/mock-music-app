@@ -77,7 +77,7 @@ $(function () {
     removeAllChildren(musicList)
 
     musicList.appendChild(createSortMethodBar())
-    getSongs(function (songs) {
+    ajaxGetSongs(function (songs) {
       executeSort(songs).forEach(function (song) {
         musicList.appendChild(createSongItemNode(song))
       })
@@ -92,7 +92,7 @@ $(function () {
     var playlistList = document.createElement('ul')
     playlistList.classList.add('music-item-list')
     playlistList.appendChild(button)
-    getPlaylists(function (playlists) {
+    ajaxGetPlaylists(function (playlists) {
       playlists.forEach(function (playlist) {
         playlistList.appendChild(createPlaylistItemNode(playlist))
       })
@@ -103,12 +103,12 @@ $(function () {
     })
   }
   function redrawPlaylistContent () {
-    var playlistPromise = new Promise(getPlaylists).then(function (playlists) {
+    var playlistPromise = new Promise(ajaxGetPlaylists).then(function (playlists) {
       return playlists.find(function (playlist) {
         return playlist['id'] === currentSelectedPlaylistID
       })
     })
-    var songmapPromise = new Promise(getSongs).then(function (songs) {
+    var songmapPromise = new Promise(ajaxGetSongs).then(function (songs) {
       return createID2SongMap(songs)
     })
 
@@ -137,9 +137,7 @@ $(function () {
     contentView.appendChild(getSearchBarInstance())
     contentView.appendChild(resultList)
 
-    if (getSearchInputInstance().value !== '') {
-      redrawSearchResults()
-    }
+    getSearchInputInstance().value = ''
   }
   function redrawSearchResults () {
     var resultList = getMusicItemListInstance()
@@ -224,10 +222,10 @@ $(function () {
     input.setAttribute('type', 'text')
     input.addEventListener('input', function (e) {
       currentSearchTerm = new RegExp(input.value, 'i')
-      var playlistSearchPromise = new Promise(getPlaylists).then(function (playlists) {
+      var playlistSearchPromise = new Promise(ajaxGetPlaylists).then(function (playlists) {
         currentPlaylistResults = executePlaylistSearch(playlists)
       })
-      var songSearchPromise = new Promise(getSongs).then(function (songs) {
+      var songSearchPromise = new Promise(ajaxGetSongs).then(function (songs) {
         currentSongResults = executeSongSearch(songs)
       })
       Promise.all([playlistSearchPromise, songSearchPromise]).then(function () {
@@ -305,7 +303,7 @@ $(function () {
     ele.addEventListener('click', function (e) {
       currentSelectedPlaylistID = playlist['id']
       ajaxAddToPlaylist(function (response) {
-        getPlaylists(function (playlists) {
+        ajaxGetPlaylists(function (playlists) {
           MUSIC_DATA['playlists'].find(function match (playlist) {
             return playlist['id'] === currentSelectedPlaylistID
           })['songs'].push(currentSelectedSongID)
@@ -333,7 +331,7 @@ $(function () {
     }
 
     modal.appendChild(createPlaylistSelectionTitleBarNode(closeModalCallback))
-    getPlaylists(function (playlists) {
+    ajaxGetPlaylists(function (playlists) {
       playlists.forEach(function (playlist) {
         modal.appendChild(createPlaylistSelectionPlaylistNode(playlist, closeModalCallback))
       })
@@ -468,9 +466,11 @@ $(function () {
       submitButton.addEventListener('click', function (e) {
         if (typeof (inputField.value) === 'string' && inputField.value !== '') {
           currentPendingPlaylistName = inputField.value
-          ajaxAddNewPlaylist(function () {
+          ajaxAddNewPlaylist(function (result) {
+            MUSIC_DATA['playlists'].push(result['value'])
             bar.removeChild(form)
             bar.appendChild(newPlaylistButton)
+            redraw()
           }, function (jqxhr, description, err) {
             errorMessageArea.textContent = JSON.stringify(err)
             form.insertBefore(errorBar, bar1)
@@ -519,7 +519,7 @@ $(function () {
     ele.classList.add('glyphicon-' + name)
   }
 
-  function getSongs (success, error) {
+  function ajaxGetSongs (success, error) {
     if (MUSIC_DATA['songs'] === undefined) {
       $.ajax({
         url: '/api/songs',
@@ -538,7 +538,7 @@ $(function () {
     }
   }
 
-  function getPlaylists (success, error) {
+  function ajaxGetPlaylists (success, error) {
     if (MUSIC_DATA['playlists'] === undefined) {
       $.ajax({
         url: '/api/playlists',

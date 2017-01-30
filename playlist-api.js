@@ -68,13 +68,17 @@ function addNewPlaylist (playlistName) {
         })
         var unusedID = uniqueNumberThatIsNot(usedID)
         if (typeof unusedID === 'number') {
-          playlists.push({
+          var newPlaylist = {
             'id': Number(unusedID),
             'name': playlistName,
             'songs': []
-          })
+          }
+          playlists.push(newPlaylist)
           return writeFile('playlists.json', JSON.stringify(playlistsData)).then(function () {
-            return {'status': 'ok'}
+            return {
+              'status': 'ok',
+              'value': newPlaylist
+            }
           })
         } else {
           return Promise.reject({

@@ -15,6 +15,7 @@ router.route({
     console.log('no path received, redirecting')
     response.statusCode = 301
     response.setHeader('location', '/playlists')
+    response.setHeader('cache-control', 'public, max-age=1800')
     response.end()
   }
 })
@@ -25,6 +26,7 @@ router.route({
     console.log('tab path received, sending html')
     response.statusCode = 200
     response.setHeader('Content-Type', 'text/html')
+    response.setHeader('cache-control', 'public, max-age=1800')
     var stream = fs.createReadStream('playlist.html')
     stream.pipe(response)
   }
@@ -36,6 +38,7 @@ router.route({
     console.log('css path received, sending css')
     response.statusCode = 200
     response.setHeader('content-type', 'text/css')
+    response.setHeader('cache-control', 'public, max-age=1800')
     var stream = fs.createReadStream('playlist.css')
     stream.pipe(response)
   }
@@ -47,6 +50,7 @@ router.route({
     console.log('script path received, sending css')
     response.statusCode = 200
     response.setHeader('content-type', 'application/javascript')
+    response.setHeader('cache-control', 'public, max-age=1800')
     var stream = fs.createReadStream('music-app.js')
     stream.pipe(response)
   }
@@ -107,8 +111,6 @@ router.route({
 })
 
 server.on('request', function (request, response) {
-  response.setHeader('cache-control', 'public, max-age=1800')
-
   router.respond(request, response)
 })
 
