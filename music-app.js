@@ -530,7 +530,7 @@ $(function () {
           success(MUSIC_DATA['songs'])
         },
         error: function (jqxhr, description, errorThrown) {
-          error(description)
+          error(jqxhr.responseJSON)
         }
       })
     } else {
@@ -549,7 +549,7 @@ $(function () {
           success(MUSIC_DATA['playlists'])
         },
         error: function (jqxhr, description, errorThrown) {
-          error(description)
+          error(jqxhr.responseJSON)
         }
       })
     } else {
@@ -575,7 +575,7 @@ $(function () {
         },
         error: function (jqxhr, description, errorThrown) {
           if (error !== undefined) {
-            error(errorThrown)
+            error(jqxhr.responseJSON)
           }
         }
       })
