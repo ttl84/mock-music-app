@@ -1,7 +1,7 @@
 const fs = require('fs')
-function getAllSongs () {
+function readJSON (path) {
   return new Promise(function (resolve, reject) {
-    fs.readFile('songs.json', 'utf8', function (err, data) {
+    fs.readFile(path, 'utf8', function (err, data) {
       if (err) {
         reject(err)
       } else {
@@ -10,16 +10,22 @@ function getAllSongs () {
     })
   })
 }
-function getAllPlaylists () {
+function writeFile (dst, src) {
   return new Promise(function (resolve, reject) {
-    fs.readFile('playlists.json', 'utf8', function (err, data) {
+    fs.writeFile(dst, src, function (err) {
       if (err) {
         reject(err)
       } else {
-        resolve(JSON.parse(data))
+        resolve()
       }
     })
   })
+}
+function getAllSongs () {
+  return readJSON('songs.json')
+}
+function getAllPlaylists () {
+  return readJSON('playlists.json')
 }
 function getSongByID (id) {
   if (typeof id !== 'number') {
@@ -48,7 +54,11 @@ function addSongToPlaylist (songID, playlistID) {
     })
     if (playlist) {
       playlist['songs'].push(songID)
-      return {'status': 'ok'}
+      return writeFile('playlists.json', JSON.stringify(playlistsData)).then(function () {
+        return {'status': 'ok'}
+      }, function (err) {
+        return Promise.reject(err)
+      })
     } else {
       return Promise.reject({'reason': 'playlist not found'})
     }
