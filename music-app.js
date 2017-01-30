@@ -302,7 +302,7 @@ $(function () {
     ele.classList.add('playlist-selection-row')
     ele.addEventListener('click', function (e) {
       currentSelectedPlaylistID = playlist['id']
-      ajaxAddToPlaylist(function (response) {
+      ajaxAddToPlaylist(currentSelectedSongID, currentSelectedPlaylistID).then(function (response) {
         getPlaylists().then(function (playlists) {
           playlists.find(function match (playlist) {
             return playlist['id'] === currentSelectedPlaylistID
@@ -585,30 +585,39 @@ $(function () {
     }
   }
 
-  function ajaxAddToPlaylist (success, error) {
-    if (currentSelectedPlaylistID !== null && currentSelectedSongID !== null) {
-      $.ajax({
-        url: '/api/playlists',
-        method: 'POST',
-        data: {
-          'method': 'add-song-to-playlist',
-          'playlist-id': currentSelectedPlaylistID,
-          'song-id': currentSelectedSongID
-        },
-        dataType: 'json',
-        success: function (data) {
-          if (success !== undefined) {
-            success(data)
+  function ajaxAddToPlaylist (songID, playlistID) {
+    if ((typeof songID === 'number') && (typeof playlistID === 'number')) {
+      return new Promise(function (resolve, reject) {
+        $.ajax({
+          url: '/api/playlists',
+          method: 'POST',
+          data: {
+            'method': 'add-song-to-playlist',
+            'playlist-id': currentSelectedPlaylistID,
+            'song-id': currentSelectedSongID
+          },
+          dataType: 'json',
+          success: function (data) {
+            resolve(data)
+          },
+          error: function (jqxhr, description, errorThrown) {
+            if (jqxhr.responseJSON) {
+              reject(jqxhr.responseJSON)
+            } else {
+              reject({
+                'status': 'error',
+                'blame': 'server'
+              })
+            }
           }
-        },
-        error: function (jqxhr, description, errorThrown) {
-          if (error !== undefined) {
-            error(jqxhr.responseJSON)
-          }
-        }
+        })
       })
     } else {
-      throw "playlist or song is not selected"
+      Promise.reject({
+        'status': 'error',
+        'blame': 'client',
+        'reason': 'missing required playlist or song ID'
+      })
     }
   }
 
