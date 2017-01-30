@@ -463,21 +463,15 @@ $(function () {
       submitButton.textContent = 'create'
       submitButton.setAttribute('type', 'button')
       submitButton.addEventListener('click', function (e) {
-        if (typeof (inputField.value) === 'string' && inputField.value !== '') {
-          currentPendingPlaylistName = inputField.value
-          ajaxAddNewPlaylist(function (result) {
-            MUSIC_DATA['playlists'].push(result['value'])
-            bar.removeChild(form)
-            bar.appendChild(newPlaylistButton)
-            redraw()
-          }, function (err) {
-            errorMessageArea.textContent = JSON.stringify(err)
-            form.insertBefore(errorBar, bar1)
-          })
-        } else {
-          errorMessageArea.textContent = 'empty name is not allowed'
+        ajaxAddNewPlaylist(inputField.value).then(function (result) {
+          MUSIC_DATA['playlists'].push(result['value'])
+          bar.removeChild(form)
+          bar.appendChild(newPlaylistButton)
+          redraw()
+        }, function (err) {
+          errorMessageArea.textContent = err.reason
           form.insertBefore(errorBar, bar1)
-        }
+        })
       })
 
       var cancelButton = createFlexButtonNode()
@@ -613,7 +607,7 @@ $(function () {
         })
       })
     } else {
-      Promise.reject({
+      return Promise.reject({
         'status': 'error',
         'blame': 'client',
         'reason': 'missing required playlist or song ID'
@@ -621,29 +615,38 @@ $(function () {
     }
   }
 
-  function ajaxAddNewPlaylist (success, error) {
-    if (typeof (currentPendingPlaylistName) === 'string' && currentPendingPlaylistName !== '') {
-      $.ajax({
-        url: '/api/playlists',
-        method: 'POST',
-        data: {
-          'method': 'add-new-playlist',
-          'playlist-name': currentPendingPlaylistName
-        },
-        dataType: 'json',
-        success: function (data) {
-          if (success !== undefined) {
-            success(data)
+  function ajaxAddNewPlaylist (playlistName) {
+    if (typeof (playlistName) === 'string' && playlistName !== '') {
+      return new Promise(function (resolve, reject) {
+        $.ajax({
+          url: '/api/playlists',
+          method: 'POST',
+          data: {
+            'method': 'add-new-playlist',
+            'playlist-name': playlistName
+          },
+          dataType: 'json',
+          success: function (data) {
+            resolve(data)
+          },
+          error: function (jqxhr, description, errorThrown) {
+            if (jqxhr.responseJSON) {
+              reject(jqxhr.responseJSON)
+            } else {
+              reject({
+                'status': 'error',
+                'blame': 'server'
+              })
+            }
           }
-        },
-        error: function (jqxhr, description, errorThrown) {
-          if (error !== undefined) {
-            error(jqxhr.responseJSON)
-          }
-        }
+        })
       })
     } else {
-      throw "playlist name is not string"
+      return Promise.reject({
+        'status': 'error',
+        'blame': 'client',
+        'reason': 'playlist name must be a non empty string'
+      })
     }
   }
 
