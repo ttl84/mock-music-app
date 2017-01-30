@@ -92,7 +92,7 @@ $(function () {
     var playlistList = document.createElement('ul')
     playlistList.classList.add('music-item-list')
     playlistList.appendChild(button)
-    ajaxGetPlaylists(function (playlists) {
+    getPlaylists().then(function (playlists) {
       playlists.forEach(function (playlist) {
         playlistList.appendChild(createPlaylistItemNode(playlist))
       })
@@ -103,7 +103,7 @@ $(function () {
     })
   }
   function redrawPlaylistContent () {
-    var playlistPromise = new Promise(ajaxGetPlaylists).then(function (playlists) {
+    var playlistPromise = getPlaylists().then(function (playlists) {
       return playlists.find(function (playlist) {
         return playlist['id'] === currentSelectedPlaylistID
       })
@@ -222,7 +222,7 @@ $(function () {
     input.setAttribute('type', 'text')
     input.addEventListener('input', function (e) {
       currentSearchTerm = new RegExp(input.value, 'i')
-      var playlistSearchPromise = new Promise(ajaxGetPlaylists).then(function (playlists) {
+      var playlistSearchPromise = getPlaylists().then(function (playlists) {
         currentPlaylistResults = executePlaylistSearch(playlists)
       })
       var songSearchPromise = getSongs().then(function (songs) {
@@ -303,20 +303,19 @@ $(function () {
     ele.addEventListener('click', function (e) {
       currentSelectedPlaylistID = playlist['id']
       ajaxAddToPlaylist(function (response) {
-        ajaxGetPlaylists(function (playlists) {
+        getPlaylists().then(function (playlists) {
           playlists.find(function match (playlist) {
             return playlist['id'] === currentSelectedPlaylistID
           })['songs'].push(currentSelectedSongID)
           currentSelectedSongID = null
           currentSelectedPlaylistID = null
           closeModalCallback()
-        }, function error (err) {
-          currentSelectedSongID = null
-          currentSelectedPlaylistID = null
-          closeModalCallback()
-          console.log('ajax error: ' + err)
         })
-
+      }, function error (err) {
+        currentSelectedSongID = null
+        currentSelectedPlaylistID = null
+        closeModalCallback()
+        console.log('ajax error: ' + err)
       })
     })
     return ele
@@ -331,7 +330,7 @@ $(function () {
     }
 
     modal.appendChild(createPlaylistSelectionTitleBarNode(closeModalCallback))
-    ajaxGetPlaylists(function (playlists) {
+    getPlaylists().then(function (playlists) {
       playlists.forEach(function (playlist) {
         modal.appendChild(createPlaylistSelectionPlaylistNode(playlist, closeModalCallback))
       })
@@ -552,22 +551,37 @@ $(function () {
     }
   }
 
-  function ajaxGetPlaylists (success, error) {
-    if (MUSIC_DATA['playlists'] === undefined) {
+  function ajaxFetchPlaylists () {
+    return new Promise(function (resolve, reject) {
       $.ajax({
         url: '/api/playlists',
         method: 'GET',
         dataType: 'json',
         success: function (data) {
-          MUSIC_DATA['playlists'] = data['playlists']
-          success(MUSIC_DATA['playlists'])
+          resolve(data['playlists'])
         },
         error: function (jqxhr, description, errorThrown) {
-          error(jqxhr.responseJSON)
+          if (jqxhr.responseJSON) {
+            reject(jqxhr.responseJSON)
+          } else {
+            reject({
+              'status': 'error',
+              'blame': 'server'
+            })
+          }
         }
       })
+    })
+  }
+
+  function getPlaylists (forceFetch) {
+    if (forceFetch || MUSIC_DATA['playlists'] === undefined) {
+      return ajaxFetchPlaylists().then(function (playlists) {
+        MUSIC_DATA['playlists'] = playlists
+        return playlists
+      })
     } else {
-      success(MUSIC_DATA['playlists'])
+      return Promise.resolve(MUSIC_DATA['playlists'])
     }
   }
 
