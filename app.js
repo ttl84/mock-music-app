@@ -87,30 +87,21 @@ router.route({
     request.on('end', function () {
       var buf = Buffer.concat(chunks)
       var message = querystring.parse(buf.toString())
-      if (message.method === 'add-song-to-playlist') {
-        if (PlaylistAPI.addSongToPlaylist(message)) {
-          response.statusCode = 201
-          response.setHeader('content-type', 'application/json')
-          response.end('{}')
-        } else {
+      PlaylistAPI.runMethod(message).then(function (result) {
+        response.statusCode = 201
+        return result
+      }, function (result) {
+        if (result['blame'] === 'client') {
           response.statusCode = 400
-          response.setHeader('content-type', 'application/json')
-          response.end('{}')
+        } else {
+          response.statusCode = 500
         }
-      } else if (message.method === 'add-new-playlist') {
-        var result = PlaylistAPI.addNewPlaylist()
-        if (result['status'] === 'ok') {
-          response.statusCode = 201
-        } else if (result['status'] === 'error') {
-          if (result['blame'] === 'client') {
-            response.statusCode = 400
-          } else {
-            response.statusCode = 500
-          }
-        }
+        return result
+      }).then(function (result) {
+        console.log(JSON.stringify(result))
         response.setHeader('content-type', 'application/json')
         response.end(JSON.stringify(result))
-      }
+      })
     })
   }
 })
