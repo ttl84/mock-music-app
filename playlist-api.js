@@ -40,9 +40,52 @@ function getSongByID (id) {
     } else {
       return Promise.reject('song not found: ' + id)
     }
-  }, function (reason) {
-    throw reason
   })
+}
+function uniqueNumberThatIsNot (numbers) {
+  for (var i = 0; i < 40000000; i++) {
+    if (!numbers[i]) {
+      return i
+    }
+  }
+  return null
+}
+function addNewPlaylist (playlistName) {
+  if (typeof playlistName !== 'string') {
+    return Promise.reject('expected playlistName to be a string, got ' + typeof playlistName)
+  } else {
+    return getAllPlaylists().then(function (playlistsData) {
+      var playlists = playlistsData['playlists']
+      var found = playlists.find(function (playlist) {
+        return playlist['name'] === playlistName
+      })
+      if (found) {
+        return Promise.reject('playlist already exists: ' + playlistName)
+      } else {
+        var usedID = {}
+        playlists.forEach(function (playlist) {
+          usedID[playlist['id']] = true
+        })
+        var unusedID = uniqueNumberThatIsNot(usedID)
+        if (typeof unusedID === 'number') {
+          playlists.push({
+            'id': Number(unusedID),
+            'name': playlistName,
+            'songs': []
+          })
+          return writeFile('playlists.json', JSON.stringify(playlistsData)).then(function () {
+            return {'status': 'ok'}
+          })
+        } else {
+          return Promise.reject({
+            'status': 'error',
+            'blame': 'server',
+            'reason': 'maximum number of playlists reached'
+          })
+        }
+      }
+    })
+  }
 }
 function addSongToPlaylist (songID, playlistID) {
   songID = Number(songID)
@@ -56,25 +99,18 @@ function addSongToPlaylist (songID, playlistID) {
       playlist['songs'].push(songID)
       return writeFile('playlists.json', JSON.stringify(playlistsData)).then(function () {
         return {'status': 'ok'}
-      }, function (err) {
-        return Promise.reject(err)
       })
     } else {
       return Promise.reject({'reason': 'playlist not found'})
     }
-  }, function (reason) {
-    throw reason
   })
-}
-function addNewPlaylist () {
-  return Promise.resolve({'status': 'ok'})
 }
 
 exports.runMethod = function (message) {
   if (message.method === 'add-song-to-playlist') {
     return addSongToPlaylist(message['song-id'], message['playlist-id'])
   } else if (message.method === 'add-new-playlist') {
-    return addNewPlaylist()
+    return addNewPlaylist(message['playlist-name'])
   } else {
     return Promise.reject({
       'status': 'error',
