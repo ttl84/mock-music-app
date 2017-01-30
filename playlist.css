@@ -138,28 +138,22 @@ html, body {
   color: #808080;
 }
 
-.modal-dim {
-  background-color: #7f7f7f;
-  opacity: 0.5;
-}
-.modal-background {
+.modal {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
+  background-color: rgba(127, 127, 127, 0.5);
+  display: flex;
 }
 
-.playlist-selection {
+.modal-content {
   background-color: #E8E0F4;
-  width: 65%;
-  max-height: 65%;
+  flex: 1;
   overflow-y: scroll;
   text-align: left;
-  position: fixed;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
+  margin: 20%;
 }
 
 .playlist-selection-title {

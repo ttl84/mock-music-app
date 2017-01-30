@@ -29,7 +29,11 @@ function getAllPlaylists () {
 }
 function getSongByID (id) {
   if (typeof id !== 'number') {
-    return Promise.reject('expected songID to be number, got ' + typeof id)
+    return Promise.reject({
+      'status': 'error',
+      'blame': 'client',
+      'reason': 'expected songID to be number, got ' + typeof id
+    })
   }
   return getAllSongs().then(function (songData) {
     var found = songData['songs'].find(function (song) {
@@ -38,7 +42,11 @@ function getSongByID (id) {
     if (found) {
       return found
     } else {
-      return Promise.reject('song not found: ' + id)
+      return Promise.reject({
+        'status': 'error',
+        'blame': 'client',
+        'reason': 'song not found: ' + id
+      })
     }
   })
 }
@@ -52,7 +60,11 @@ function uniqueNumberThatIsNot (numbers) {
 }
 function addNewPlaylist (playlistName) {
   if (typeof playlistName !== 'string') {
-    return Promise.reject('expected playlistName to be a string, got ' + typeof playlistName)
+    return Promise.reject({
+      'status': 'error',
+      'blame': 'client',
+      'reason': 'expected playlistName to be a string, got ' + typeof playlistName
+    })
   } else {
     return getAllPlaylists().then(function (playlistsData) {
       var playlists = playlistsData['playlists']
@@ -60,7 +72,11 @@ function addNewPlaylist (playlistName) {
         return playlist['name'] === playlistName
       })
       if (found) {
-        return Promise.reject('playlist already exists: ' + playlistName)
+        return Promise.reject({
+          'status': 'error',
+          'blame': 'client',
+          'reason': 'playlist already exists: ' + playlistName
+        })
       } else {
         var usedID = {}
         playlists.forEach(function (playlist) {
@@ -105,7 +121,11 @@ function addSongToPlaylist (songID, playlistID) {
         return {'status': 'ok'}
       })
     } else {
-      return Promise.reject({'reason': 'playlist not found'})
+      return Promise.reject({
+        'status': 'error',
+        'blame': 'client',
+        'reason': 'playlist not found'
+      })
     }
   })
 }

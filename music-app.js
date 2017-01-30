@@ -8,7 +8,6 @@ $(function () {
   var currentSearchTerm = ''
   var currentPlaylistResults = []
   var currentSongResults = []
-  var currentPendingPlaylistName = null
   var MUSIC_DATA = {
   }
 
@@ -17,10 +16,6 @@ $(function () {
   var currentSearchBarInstance = null
   var currentSearchInputInstance = null
 
-  function popContent () {
-    var contentView = document.getElementById('content-view')
-    contentView.removeChild(contentView.lastChild)
-  }
   function activateLibraryTab () {
     if (currentTab !== 'library') {
       currentTab = 'library'
@@ -271,10 +266,26 @@ $(function () {
     return bar
   }
 
-  function createPlaylistSelectionBackgroundNode () {
+  function createPlaylistSelectionModalNode () {
     var background = document.createElement('div')
-    background.classList.add('modal-dim')
-    background.classList.add('modal-background')
+    background.classList.add('modal')
+    background.id = 'current-modal'
+    function closeModalCallback () {
+      var myself = document.getElementById('current-modal')
+      myself.parentNode.removeChild(myself)
+    }
+
+    var modalContent = document.createElement('div')
+    background.appendChild(modalContent)
+    modalContent.classList.add('modal-content')
+
+    modalContent.appendChild(createPlaylistSelectionTitleBarNode(closeModalCallback))
+    getPlaylists().then(function (playlists) {
+      playlists.forEach(function (playlist) {
+        var row = createPlaylistSelectionPlaylistNode(playlist, closeModalCallback)
+        modalContent.appendChild(row)
+      })
+    })
     return background
   }
   function createPlaylistSelectionTitleBarNode (closeModalCallback) {
@@ -320,24 +331,7 @@ $(function () {
     })
     return ele
   }
-  function createPlaylistSelectionModalNode () {
-    var modal = document.createElement('div')
-    modal.classList.add('playlist-selection')
 
-    function closeModalCallback () {
-      popContent()
-      popContent()
-    }
-
-    modal.appendChild(createPlaylistSelectionTitleBarNode(closeModalCallback))
-    getPlaylists().then(function (playlists) {
-      playlists.forEach(function (playlist) {
-        modal.appendChild(createPlaylistSelectionPlaylistNode(playlist, closeModalCallback))
-      })
-    })
-
-    return modal
-  }
   function createSongItemNode (song) {
     var item = document.createElement('li')
     item.classList.add('music-item')
@@ -355,7 +349,6 @@ $(function () {
     addButton.addEventListener('click', function (e) {
       currentSelectedSongID = song['id']
       var contentView = document.getElementById('content-view')
-      contentView.appendChild(createPlaylistSelectionBackgroundNode())
       contentView.appendChild(createPlaylistSelectionModalNode())
     })
 
