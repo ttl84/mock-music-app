@@ -16,10 +16,14 @@ $(function () {
   var currentSearchBarInstance = null
   var currentSearchInputInstance = null
 
+  function switchTabCleanUp () {
+    getSearchInputInstance().value = ''
+  }
   function activateLibraryTab () {
     if (currentTab !== 'library') {
       currentTab = 'library'
       window.history.pushState({}, 'hello', 'library')
+      switchTabCleanUp()
       redraw()
     }
   }
@@ -28,6 +32,7 @@ $(function () {
     if (currentTab !== 'playlists') {
       currentTab = 'playlists'
       window.history.pushState({}, 'hello', 'playlists')
+      switchTabCleanUp()
       redraw()
     }
   }
@@ -35,6 +40,7 @@ $(function () {
     if (currentTab !== 'search') {
       currentTab = 'search'
       window.history.pushState({}, 'hello', 'search')
+      switchTabCleanUp()
       redraw()
     }
   }
@@ -132,7 +138,9 @@ $(function () {
     contentView.appendChild(getSearchBarInstance())
     contentView.appendChild(resultList)
 
-    getSearchInputInstance().value = ''
+    if (getSearchInputInstance().value !== '') {
+      redrawSearchResults()
+    }
   }
   function redrawSearchResults () {
     var resultList = getMusicItemListInstance()
@@ -316,8 +324,8 @@ $(function () {
     ele.addEventListener('click', function (e) {
       ajaxAddToPlaylist(currentSelectedSongID, playlist['id']).then(function (response) {
         getPlaylists().then(function (playlists) {
-          playlists.find(function match (playlist) {
-            return playlist['id'] === currentSelectedPlaylistID
+          playlists.find(function match (ele) {
+            return playlist['id'] === ele['id']
           })['songs'].push(currentSelectedSongID)
           closeModalCallback()
         })
