@@ -74,7 +74,7 @@ function addNewPlaylist (playlistName) {
             'songs': []
           }
           playlists.push(newPlaylist)
-          return writeFile('playlists.json', JSON.stringify(playlistsData)).then(function () {
+          return writeFile('playlists.json', JSON.stringify(playlistsData, null, '    ')).then(function () {
             return {
               'status': 'ok',
               'value': newPlaylist
@@ -101,7 +101,7 @@ function addSongToPlaylist (songID, playlistID) {
     })
     if (playlist) {
       playlist['songs'].push(songID)
-      return writeFile('playlists.json', JSON.stringify(playlistsData)).then(function () {
+      return writeFile('playlists.json', JSON.stringify(playlistsData, null, '    ')).then(function () {
         return {'status': 'ok'}
       })
     } else {
