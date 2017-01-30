@@ -304,7 +304,7 @@ $(function () {
       currentSelectedPlaylistID = playlist['id']
       ajaxAddToPlaylist(function (response) {
         ajaxGetPlaylists(function (playlists) {
-          MUSIC_DATA['playlists'].find(function match (playlist) {
+          playlists.find(function match (playlist) {
             return playlist['id'] === currentSelectedPlaylistID
           })['songs'].push(currentSelectedSongID)
           currentSelectedSongID = null
