@@ -146,6 +146,10 @@ $(function () {
     var resultList = getMusicItemListInstance()
     removeAllChildren(resultList)
 
+    if (getSearchInputInstance().value === '') {
+      return
+    }
+
     if (currentPlaylistResults.length > 0) {
       currentPlaylistResults.forEach(function (playlist) {
         resultList.appendChild(createPlaylistItemNode(playlist))
