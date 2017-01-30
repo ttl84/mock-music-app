@@ -77,7 +77,7 @@ $(function () {
     removeAllChildren(musicList)
 
     musicList.appendChild(createSortMethodBar())
-    ajaxGetSongs(function (songs) {
+    getSongs().then(function (songs) {
       executeSort(songs).forEach(function (song) {
         musicList.appendChild(createSongItemNode(song))
       })
@@ -108,7 +108,7 @@ $(function () {
         return playlist['id'] === currentSelectedPlaylistID
       })
     })
-    var songmapPromise = new Promise(ajaxGetSongs).then(function (songs) {
+    var songmapPromise = getSongs().then(function (songs) {
       return createID2SongMap(songs)
     })
 
@@ -225,7 +225,7 @@ $(function () {
       var playlistSearchPromise = new Promise(ajaxGetPlaylists).then(function (playlists) {
         currentPlaylistResults = executePlaylistSearch(playlists)
       })
-      var songSearchPromise = new Promise(ajaxGetSongs).then(function (songs) {
+      var songSearchPromise = getSongs().then(function (songs) {
         currentSongResults = executeSongSearch(songs)
       })
       Promise.all([playlistSearchPromise, songSearchPromise]).then(function () {
@@ -519,22 +519,36 @@ $(function () {
     ele.classList.add('glyphicon-' + name)
   }
 
-  function ajaxGetSongs (success, error) {
-    if (MUSIC_DATA['songs'] === undefined) {
+  function ajaxFetchSongs () {
+    return new Promise(function (resolve, reject) {
       $.ajax({
         url: '/api/songs',
         method: 'GET',
         dataType: 'json',
         success: function (data) {
-          MUSIC_DATA['songs'] = data['songs']
-          success(MUSIC_DATA['songs'])
+          resolve(data['songs'])
         },
         error: function (jqxhr, description, errorThrown) {
-          error(jqxhr.responseJSON)
+          if (jqxhr.responseJSON) {
+            reject(jqxhr.responseJSON)
+          } else {
+            reject({
+              'status': 'error',
+              'blame': 'server'
+            })
+          }
         }
       })
+    })
+  }
+  function getSongs (forceFetch) {
+    if (forceFetch || MUSIC_DATA['songs'] === undefined) {
+      return ajaxFetchSongs().then(function (songs) {
+        MUSIC_DATA['songs'] = songs
+        return songs
+      })
     } else {
-      success(MUSIC_DATA['songs'])
+      return Promise.resolve(MUSIC_DATA['songs'])
     }
   }
 
