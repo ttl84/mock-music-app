@@ -110,6 +110,16 @@ router.route({
   }
 })
 
+router.route({
+  pattern: /^\/favicon\.ico$/,
+  method: 'GET',
+  callback: function (request, response) {
+    console.log('GET favicon received, refusing')
+    response.statusCode = 403
+    response.end()
+  }
+})
+
 server.on('request', function (request, response) {
   router.respond(request, response)
 })
