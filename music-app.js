@@ -273,6 +273,8 @@ $(function () {
     function closeModalCallback () {
       var myself = document.getElementById('current-modal')
       myself.parentNode.removeChild(myself)
+      currentSelectedSongID = null
+      redraw()
     }
 
     var modalContent = document.createElement('div')
@@ -312,19 +314,14 @@ $(function () {
     ele.classList.add('playlist-selection-item')
     ele.classList.add('playlist-selection-row')
     ele.addEventListener('click', function (e) {
-      currentSelectedPlaylistID = playlist['id']
-      ajaxAddToPlaylist(currentSelectedSongID, currentSelectedPlaylistID).then(function (response) {
+      ajaxAddToPlaylist(currentSelectedSongID, playlist['id']).then(function (response) {
         getPlaylists().then(function (playlists) {
           playlists.find(function match (playlist) {
             return playlist['id'] === currentSelectedPlaylistID
           })['songs'].push(currentSelectedSongID)
-          currentSelectedSongID = null
-          currentSelectedPlaylistID = null
           closeModalCallback()
         })
       }, function error (err) {
-        currentSelectedSongID = null
-        currentSelectedPlaylistID = null
         closeModalCallback()
         console.log('ajax error: ' + err)
       })
