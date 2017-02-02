@@ -1,15 +1,5 @@
 const fs = require('fs')
-function readJSON (path) {
-  return new Promise(function (resolve, reject) {
-    fs.readFile(path, 'utf8', function (err, data) {
-      if (err) {
-        reject(err)
-      } else {
-        resolve(JSON.parse(data))
-      }
-    })
-  })
-}
+const fshelper = require('./fshelper')
 function writeFile (dst, src) {
   return new Promise(function (resolve, reject) {
     fs.writeFile(dst, src, function (err) {
@@ -22,10 +12,10 @@ function writeFile (dst, src) {
   })
 }
 function getAllSongs () {
-  return readJSON('songs.json')
+  return fshelper.readJSON('songs.json')
 }
 function getAllPlaylists () {
-  return readJSON('playlists.json')
+  return fshelper.readJSON('playlists.json')
 }
 function getSongByID (id) {
   if (typeof id !== 'number') {
