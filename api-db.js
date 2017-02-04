@@ -12,6 +12,8 @@ function getAllSongs () {
     })
   })
 }
+exports.getAllSongs = getAllSongs
+
 function getPlaylistsTable () {
   return new Promise((resolve, reject) => {
     db.all('SELECT * FROM Playlists', (err, rows) => {
@@ -49,3 +51,4 @@ function getAllPlaylists () {
     return playlists
   })
 }
+exports.getAllPlaylists = getAllPlaylists

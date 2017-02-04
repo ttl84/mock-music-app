@@ -4,6 +4,7 @@ const fs = require('fs')
 const querystring = require('querystring')
 const Router = require('./router.js')
 const PlaylistAPI = require('./playlist-api.js')
+const AppAPI = require('./api-db.js')
 // Create a server and provide it a callback to be executed for every HTTP request
 // coming into localhost:3000.
 var server = http.createServer()
@@ -63,8 +64,9 @@ router.route({
     console.log('GET songs received, sending songs')
     response.statusCode = 200
     response.setHeader('content-type', 'application/json')
-    var stream = fs.createReadStream('songs.json')
-    stream.pipe(response)
+    AppAPI.getAllSongs().then(data => {
+      response.end(JSON.stringify(data))
+    })
   }
 })
 
@@ -75,8 +77,9 @@ router.route({
     console.log('GET playlists received, sending playlists')
     response.statusCode = 200
     response.setHeader('content-type', 'application/json')
-    var stream = fs.createReadStream('playlists.json')
-    stream.pipe(response)
+    AppAPI.getAllPlaylists().then(data => {
+      response.end(JSON.stringify(data))
+    })
   }
 })
 

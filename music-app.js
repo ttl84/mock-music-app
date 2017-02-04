@@ -521,7 +521,7 @@ $(function () {
         method: 'GET',
         dataType: 'json',
         success: function (data) {
-          resolve(data['songs'])
+          resolve(data)
         },
         error: function (jqxhr, description, errorThrown) {
           if (jqxhr.responseJSON) {
@@ -554,7 +554,7 @@ $(function () {
         method: 'GET',
         dataType: 'json',
         success: function (data) {
-          resolve(data['playlists'])
+          resolve(data)
         },
         error: function (jqxhr, description, errorThrown) {
           if (jqxhr.responseJSON) {
