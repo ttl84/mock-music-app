@@ -49,8 +49,3 @@ function getAllPlaylists () {
     return playlists
   })
 }
-getAllPlaylists().then(value => {
-  value.forEach(row => {
-    console.log(row)
-  })
-})
