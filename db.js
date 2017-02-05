@@ -3,8 +3,9 @@ const fshelper = require('./fshelper.js')
 function handleError (context) {
   return function (err) {
     if (err) {
-      console.log(context + ':')
-      console.log(err)
+      console.log('[ERROR] ' + context + ' : ' + err)
+    } else {
+      console.log('[OKAY]  ' + context)
     }
   }
 }
