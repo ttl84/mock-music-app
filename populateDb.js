@@ -2,12 +2,14 @@ const models = require('./models')
 const fshelper = require('./fshelper')
 
 var pGetSongs = fshelper.readJSON('songs.json')
-Promise.all([models.Songs.sync(), pGetSongs]).then(results => {
+var pGetPlaylists = fshelper.readJSON('playlists.json')
+var pSync = models.sequelize.sync({force: true})
+Promise.all([pSync, pGetSongs]).then(results => {
   var songs = results[1]['songs']
-
   songs.forEach(song => {
     console.log(song)
-    models.Songs.create({
+    models.Song.create({
+      id: song.id,
       title: song.title,
       album: song.album,
       artist: song.artist,
@@ -16,13 +18,15 @@ Promise.all([models.Songs.sync(), pGetSongs]).then(results => {
   })
 })
 
-var pGetPlaylists = fshelper.readJSON('playlists.json')
-Promise.all([models.Playlists.sync(), pGetPlaylists]).then(results => {
+Promise.all([pSync, pGetPlaylists]).then(results => {
   var playlists = results[1]['playlists']
-  playlists.forEach(playlist => {
-    console.log(playlist)
-    models.Playlists.create({
-      name: playlist['name']
+  playlists.forEach(playlistJSON => {
+    console.log(playlistJSON)
+    models.Playlist.create({
+      id: playlistJSON['id'],
+      name: playlistJSON['name']
+    }).then(playlistRow => {
+      playlistRow.addSongs(playlistJSON['songs'])
     })
   })
 })
