@@ -1,54 +1,53 @@
-const sqlite3 = require('sqlite3').verbose()
-var db = new sqlite3.Database('app.db', sqlite3.OPEN_READWRITE)
+const models = require('./models')
 
 function getAllSongs () {
-  return new Promise((resolve, reject) => {
-    db.all('SELECT * FROM Songs', (err, rows) => {
-      if (err) {
-        reject(err)
-      } else {
-        resolve(rows)
-      }
+  return models.Song.findAll({
+    attributes: {
+      exclude: ['createdAt', 'updatedAt']
+    }
+  }).then(instances => {
+    return instances.map(instance => {
+      return instance.get()
     })
   })
 }
 exports.getAllSongs = getAllSongs
+function printGetAllSongs () {
+  getAllSongs().then(rows => {
+    rows.forEach(row => {
+      console.log(row)
+    })
+  })
+}
 
-function getPlaylistsTable () {
-  return new Promise((resolve, reject) => {
-    db.all('SELECT * FROM Playlists', (err, rows) => {
-      if (err) {
-        reject(err)
-      } else {
-        resolve(rows)
-      }
-    })
-  })
-}
-function getSongsPlaylistsTable () {
-  return new Promise((resolve, reject) => {
-    db.all('SELECT playlist_id, song_id FROM Songs_Playlists', (err, rows) => {
-      if (err) {
-        reject(err)
-      } else {
-        resolve(rows)
-      }
-    })
-  })
-}
 function getAllPlaylists () {
-  return Promise.all([getPlaylistsTable(), getSongsPlaylistsTable()]).then(values => {
-    var playlists = values[0]
-    var mappings = values[1]
-    var idMap = {}
-    playlists.forEach(playlist => {
-      idMap[playlist['id']] = playlist
-      playlist['songs'] = []
-    })
-    mappings.forEach(mapping => {
-      idMap[mapping['playlist_id']]['songs'].push(mapping['song_id'])
-    })
-    return playlists
+  return models.Playlist.findAll({
+    attributes: {
+      exclude: ['createdAt', 'updatedAt']
+    }
+  }).then(instances => {
+    return Promise.all(instances.map(playlistInstance => {
+      return playlistInstance.getSongs().then(songInstances => {
+        var playlistObj = playlistInstance.get()
+        var songIds = songInstances.map(songInstance => {
+          return songInstance.get('id')
+        })
+        playlistObj['songs'] = songIds
+        return playlistObj
+      })
+    }))
   })
 }
 exports.getAllPlaylists = getAllPlaylists
+function printGetAllPlaylists () {
+  getAllPlaylists().then(rows => {
+    rows.forEach(row => {
+      console.log(row)
+    })
+  })
+}
+
+if (require.main === module) {
+  printGetAllSongs()
+  printGetAllPlaylists()
+}
