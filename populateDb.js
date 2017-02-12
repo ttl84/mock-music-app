@@ -4,8 +4,9 @@ const fshelper = require('./fshelper')
 var pGetSongs = fshelper.readJSON('songs.json')
 var pGetPlaylists = fshelper.readJSON('playlists.json')
 var pSync = models.sequelize.sync({force: true})
-Promise.all([pSync, pGetSongs]).then(results => {
-  var songs = results[1]['songs']
+
+var pPopulateSongs = Promise.all([pGetSongs, pSync]).then(results => {
+  var songs = results[0]['songs']
   songs.forEach(song => {
     console.log(song)
     models.Song.create({
@@ -18,8 +19,8 @@ Promise.all([pSync, pGetSongs]).then(results => {
   })
 })
 
-Promise.all([pSync, pGetPlaylists]).then(results => {
-  var playlists = results[1]['playlists']
+Promise.all([pGetPlaylists, pPopulateSongs, pSync]).then(results => {
+  var playlists = results[0]['playlists']
   playlists.forEach(playlistJSON => {
     console.log(playlistJSON)
     models.Playlist.create({
