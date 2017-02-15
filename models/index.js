@@ -1,5 +1,3 @@
-// Professor's demo code
-// Formatted to match the linter I use
 'use strict'
 
 var fs = require('fs')

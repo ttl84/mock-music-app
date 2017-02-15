@@ -1,129 +1,93 @@
-// Import the http library
-const http = require('http')
-const fs = require('fs')
-const querystring = require('querystring')
-const Router = require('./router.js')
+'use strict'
+const express = require('express')
 const PlaylistAPI = require('./playlist-api.js')
 const AppAPI = require('./api-db.js')
 // Create a server and provide it a callback to be executed for every HTTP request
 // coming into localhost:3000.
-var server = http.createServer()
-var router = new Router()
+var app = express()
+app.listen(3000)
+var fileServeOptions = {
+  root: __dirname
+}
 
-router.route({
-  pattern: /^\/$/,
-  callback: function (request, response) {
-    console.log('no path received, redirecting')
-    response.statusCode = 301
-    response.setHeader('location', '/playlists')
-    response.setHeader('cache-control', 'public, max-age=1800')
-    response.end()
-  }
+app.get('/', (request, response) => {
+  console.log('no path received, redirecting')
+  response.set('cache-control', 'public, max-age=1800')
+  response.redirect(301, '/playlists')
 })
 
-router.route({
-  pattern: /^\/(playlists|library|search)$/,
-  callback: function (request, response) {
-    console.log('tab path received, sending html')
-    response.statusCode = 200
-    response.setHeader('Content-Type', 'text/html')
-    response.setHeader('cache-control', 'public, max-age=1800')
-    var stream = fs.createReadStream('playlist.html')
-    stream.pipe(response)
-  }
+app.get(/^\/(playlists|library|search)$/, (request, response) => {
+  console.log('tab path received, sending html')
+  response.status(200)
+  response.set({
+    'content-type': 'text/html',
+    'cache-control': 'public, max-age=1800'
+  })
+  response.sendFile('playlist.html', fileServeOptions)
 })
 
-router.route({
-  pattern: /^\/playlist\.css$/,
-  callback: function (request, response) {
-    console.log('css path received, sending css')
-    response.statusCode = 200
-    response.setHeader('content-type', 'text/css')
-    response.setHeader('cache-control', 'public, max-age=1800')
-    var stream = fs.createReadStream('playlist.css')
-    stream.pipe(response)
-  }
+app.get('/playlist.css', (request, response) => {
+  console.log('css path received, sending css')
+  response.status(200)
+  response.set({
+    'content-type': 'text/css',
+    'cache-control': 'public, max-age=1800'
+  })
+  response.sendFile('playlist.css', fileServeOptions)
 })
 
-router.route({
-  pattern: /^\/music-app\.js$/,
-  callback: function (request, response) {
-    console.log('script path received, sending css')
-    response.statusCode = 200
-    response.setHeader('content-type', 'application/javascript')
-    response.setHeader('cache-control', 'public, max-age=1800')
-    var stream = fs.createReadStream('music-app.js')
-    stream.pipe(response)
-  }
+app.get('/music-app.js', (request, response) => {
+  console.log('script path received, sending css')
+  response.status(200)
+  response.set({
+    'content-type': 'application/javascript',
+    'cache-control': 'public, max-age=1800'
+  })
+  response.sendFile('music-app.js', fileServeOptions)
 })
 
-router.route({
-  pattern: /^\/api\/songs$/,
-  method: 'GET',
-  callback: function (request, response) {
-    console.log('GET songs received, sending songs')
-    response.statusCode = 200
-    response.setHeader('content-type', 'application/json')
-    AppAPI.getAllSongs().then(data => {
-      response.end(JSON.stringify(data))
-    })
-  }
+app.get('/api/songs', (request, response) => {
+  console.log('GET songs received, sending songs')
+  AppAPI.getAllSongs().then(data => {
+    response.status(200)
+    response.json(data)
+  }).catch(err => {
+    response.status(500)
+    response.json(err)
+  })
 })
 
-router.route({
-  pattern: /^\/api\/playlists$/,
-  method: 'GET',
-  callback: function (request, response) {
-    console.log('GET playlists received, sending playlists')
-    response.statusCode = 200
-    response.setHeader('content-type', 'application/json')
-    AppAPI.getAllPlaylists().then(data => {
-      response.end(JSON.stringify(data))
-    })
-  }
+app.get('/api/playlists', (request, response) => {
+  console.log('GET playlists received, sending playlists')
+  AppAPI.getAllPlaylists().then(data => {
+    response.status(200)
+    response.json(data)
+  }).catch(err => {
+    response.status(500)
+    response.json(err)
+  })
 })
 
-router.route({
-  pattern: /^\/api\/playlists$/,
-  method: 'POST',
-  callback: function (request, response) {
-    var chunks = []
-    request.on('data', function (buf) {
-      chunks.push(buf)
-    })
-    request.on('end', function () {
-      var buf = Buffer.concat(chunks)
-      var message = querystring.parse(buf.toString())
-      PlaylistAPI.runMethod(message).then(function (result) {
-        response.statusCode = 201
-        return result
-      }, function (result) {
-        if (result['blame'] === 'client') {
-          response.statusCode = 400
-        } else {
-          response.statusCode = 500
-        }
-        return result
-      }).then(function (result) {
-        console.log(JSON.stringify(result))
-        response.setHeader('content-type', 'application/json')
-        response.end(JSON.stringify(result))
-      })
-    })
-  }
+app.post('/api/playlists', (request, response) => {
+  // TODO: produce a proper request.query using bodyParser package
+  PlaylistAPI.runMethod(request.query).then(result => {
+    response.status(201)
+    return result
+  }, result => {
+    if (result['blame'] === 'client') {
+      response.status(400)
+    } else {
+      response.status(500)
+    }
+    return result
+  }).then(result => {
+    console.log(JSON.stringify(request.query))
+    console.log(JSON.stringify(result))
+    response.json(result)
+  })
 })
 
-router.fallback(function (request, response) {
+app.get('*', (request, response) => {
   console.log('request not understood: ' + request.url)
-  response.statusCode = 404
-  response.end()
-})
-
-server.on('request', function (request, response) {
-  router.respond(request, response)
-})
-
-// Start the server on port 3000
-server.listen(3000, function () {
-  console.log('Amazing music app server listening on port 3000!')
+  response.sendStatus(404)
 })
