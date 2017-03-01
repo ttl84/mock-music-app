@@ -1,10 +1,13 @@
 'use strict'
 const express = require('express')
+const bodyParser = require('body-parser')
 const PlaylistAPI = require('./playlist-api.js')
 const AppAPI = require('./api-db.js')
 // Create a server and provide it a callback to be executed for every HTTP request
 // coming into localhost:3000.
 var app = express()
+app.use(bodyParser.json())
+app.use(bodyParser.urlencoded({ extended: true }))
 app.listen(3000)
 var fileServeOptions = {
   root: __dirname
@@ -68,9 +71,8 @@ app.get('/api/playlists', (request, response) => {
   })
 })
 
-app.post('/api/playlists', (request, response) => {
-  // TODO: produce a proper request.query using bodyParser package
-  PlaylistAPI.runMethod(request.query).then(result => {
+app.post('/api/playlists/:playlistID', (request, response) => {
+  PlaylistAPI.addSongToPlaylist(request.body['song-id'], request.params.playlistID).then(result => {
     response.status(201)
     return result
   }, result => {
@@ -81,8 +83,8 @@ app.post('/api/playlists', (request, response) => {
     }
     return result
   }).then(result => {
-    console.log(JSON.stringify(request.query))
-    console.log(JSON.stringify(result))
+    console.log('request: ' + JSON.stringify(request.body))
+    console.log('response: ' + JSON.stringify(result))
     response.json(result)
   })
 })

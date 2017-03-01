@@ -97,7 +97,8 @@ function addNewPlaylist (playlistName) {
     })
   }
 }
-function addSongToPlaylist (songID, playlistID) {
+exports.addSongToPlaylist = function (songID, playlistID) {
+  // TODO: implement api using database
   songID = Number(songID)
   playlistID = Number(playlistID)
   return Promise.all([getSongByID(songID), getAllPlaylists()]).then(function (values) {
@@ -118,18 +119,4 @@ function addSongToPlaylist (songID, playlistID) {
       })
     }
   })
-}
-
-exports.runMethod = function (message) {
-  if (message.method === 'add-song-to-playlist') {
-    return addSongToPlaylist(message['song-id'], message['playlist-id'])
-  } else if (message.method === 'add-new-playlist') {
-    return addNewPlaylist(message['playlist-name'])
-  } else {
-    return Promise.reject({
-      'status': 'error',
-      'blame': 'client',
-      'reason': 'bad api method'
-    })
-  }
 }

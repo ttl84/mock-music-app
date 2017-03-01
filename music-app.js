@@ -585,12 +585,10 @@ $(function () {
     if ((typeof songID === 'number') && (typeof playlistID === 'number')) {
       return new Promise(function (resolve, reject) {
         $.ajax({
-          url: '/api/playlists',
+          url: '/api/playlists/' + playlistID,
           method: 'POST',
           data: {
-            'method': 'add-song-to-playlist',
-            'playlist-id': currentSelectedPlaylistID,
-            'song-id': currentSelectedSongID
+            'song-id': songID
           },
           dataType: 'json',
           success: function (data) {
