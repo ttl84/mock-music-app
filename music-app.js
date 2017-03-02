@@ -18,6 +18,8 @@ $(function () {
 
   function switchTabCleanUp () {
     getSearchInputInstance().value = ''
+    currentSelectedSongID = null
+    currentSelectedPlaylistID = null
   }
   function activateLibraryTab () {
     if (currentTab !== 'library') {
@@ -361,8 +363,28 @@ $(function () {
       contentView.appendChild(createPlaylistSelectionModalNode())
     })
 
+    var removeButton = document.createElement('span')
+    removeButton.classList.add('music-item-button')
+    addGlyphicon(removeButton, 'remove')
+    removeButton.addEventListener('click', function (e) {
+      var songID = song['id']
+      var playlistID = currentSelectedPlaylistID
+      var playlist = MUSIC_DATA['playlists'].find(function (playlist) {
+        return playlist['id'] === currentSelectedPlaylistID
+      })
+      var songIndex = playlist['songs'].indexOf(song['id'])
+      if (songIndex > -1) {
+        playlist['songs'].splice(songIndex, 1)
+      }
+      item.parentNode.removeChild(item)
+      ajaxRemoveSongFromPlaylist(songID, playlistID)
+    })
+
     item.appendChild(musicIcon)
     item.appendChild(createMusicTitleSubtitleNode(song['title'], song['artist']))
+    if (Number.isInteger(currentSelectedPlaylistID)) {
+      item.appendChild(removeButton)
+    }
     item.appendChild(addButton)
     item.appendChild(playButton)
 
@@ -591,6 +613,40 @@ $(function () {
         $.ajax({
           url: '/api/playlists/' + playlistID,
           method: 'POST',
+          data: {
+            'song': songID
+          },
+          dataType: 'json',
+          success: function (data) {
+            resolve(data)
+          },
+          error: function (jqxhr, description, errorThrown) {
+            if (jqxhr.responseJSON) {
+              reject(jqxhr.responseJSON)
+            } else {
+              reject({
+                'status': 'error',
+                'blame': 'server'
+              })
+            }
+          }
+        })
+      })
+    } else {
+      return Promise.reject({
+        'status': 'error',
+        'blame': 'client',
+        'reason': 'missing required playlist or song ID'
+      })
+    }
+  }
+
+  function ajaxRemoveSongFromPlaylist (songID, playlistID) {
+    if ((typeof songID === 'number') && (typeof playlistID === 'number')) {
+      return new Promise(function (resolve, reject) {
+        $.ajax({
+          url: '/api/playlists/' + playlistID,
+          method: 'DELETE',
           data: {
             'song': songID
           },

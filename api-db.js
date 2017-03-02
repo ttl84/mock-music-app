@@ -80,6 +80,19 @@ exports.addNewPlaylist = function (name) {
   })
 }
 
+exports.removeSongFromPlaylist = function (songID, playlistID) {
+  return models.PlaylistSong.findOne({
+    where: {
+      'SongID': songID,
+      'PlaylistID': playlistID
+    }
+  }).then(instance => {
+    return instance.destroy()
+  }).then(result => {
+    return {'status': 'ok'}
+  })
+}
+
 if (require.main === module) {
   printGetAllSongs()
   printGetAllPlaylists()

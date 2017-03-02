@@ -75,6 +75,9 @@ app.post('/api/playlists', (request, response) => {
   AppAPI.addNewPlaylist(request.body['name']).then(result => {
     response.status(200)
     return result
+  }, result => {
+    response.status(500)
+    return result
   }).then(result => {
     console.log('request: ' + JSON.stringify(request.body))
     console.log('response: ' + JSON.stringify(result))
@@ -85,6 +88,20 @@ app.post('/api/playlists', (request, response) => {
 app.post('/api/playlists/:playlistID', (request, response) => {
   AppAPI.addSongToPlaylist(request.body['song'], request.params.playlistID).then(result => {
     response.status(201)
+    return result
+  }, result => {
+    response.status(500)
+    return result
+  }).then(result => {
+    console.log('request: ' + JSON.stringify(request.body))
+    console.log('response: ' + JSON.stringify(result))
+    response.json(result)
+  })
+})
+
+app.delete('/api/playlists/:playlistID', (request, response) => {
+  AppAPI.removeSongFromPlaylist(request.body['song'], request.params.playlistID).then(result => {
+    response.status(200)
     return result
   }, result => {
     response.status(500)
