@@ -71,8 +71,19 @@ app.get('/api/playlists', (request, response) => {
   })
 })
 
+app.post('/api/playlists', (request, response) => {
+  AppAPI.addNewPlaylist(request.body['name']).then(result => {
+    response.status(200)
+    return result
+  }).then(result => {
+    console.log('request: ' + JSON.stringify(request.body))
+    console.log('response: ' + JSON.stringify(result))
+    response.json(result)
+  })
+})
+
 app.post('/api/playlists/:playlistID', (request, response) => {
-  AppAPI.addSongToPlaylist(request.body['song-id'], request.params.playlistID).then(result => {
+  AppAPI.addSongToPlaylist(request.body['song'], request.params.playlistID).then(result => {
     response.status(201)
     return result
   }, result => {

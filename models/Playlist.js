@@ -4,7 +4,10 @@ module.exports = function (sequelize, DataType) {
       type: DataType.INTEGER,
       primaryKey: true
     },
-    name: DataType.STRING
+    name: {
+      type: DataType.STRING,
+      unique: true
+    }
   }, {
     classMethods: {
       associate: function (models) {

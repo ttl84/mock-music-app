@@ -60,6 +60,26 @@ exports.addSongToPlaylist = function (songID, playlistID) {
   })
 }
 
+exports.addNewPlaylist = function (name) {
+  return models.Playlist.create({
+    'name': name
+  }).then(instance => {
+    // redundant query here because the instance object returned here doesn't have
+    // an id yet, even though it does in the database. By looking it up manually,
+    // the instance object will contain the id value.
+    return models.Playlist.findOne({
+      where: {
+        'name': name
+      }
+    })
+  }).then(instance => {
+    return {
+      'id': instance.get('id'),
+      'name': instance.get('name')
+    }
+  })
+}
+
 if (require.main === module) {
   printGetAllSongs()
   printGetAllPlaylists()

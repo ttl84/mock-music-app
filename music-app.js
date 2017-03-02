@@ -466,7 +466,11 @@ $(function () {
       submitButton.setAttribute('type', 'button')
       submitButton.addEventListener('click', function (e) {
         ajaxAddNewPlaylist(inputField.value).then(function (result) {
-          MUSIC_DATA['playlists'].push(result['value'])
+          MUSIC_DATA['playlists'].push({
+            'id': result['id'],
+            'name': result['name'],
+            'songs': []
+          })
           bar.removeChild(form)
           bar.appendChild(newPlaylistButton)
           redraw()
@@ -588,7 +592,7 @@ $(function () {
           url: '/api/playlists/' + playlistID,
           method: 'POST',
           data: {
-            'song-id': songID
+            'song': songID
           },
           dataType: 'json',
           success: function (data) {
@@ -622,8 +626,7 @@ $(function () {
           url: '/api/playlists',
           method: 'POST',
           data: {
-            'method': 'add-new-playlist',
-            'playlist-name': playlistName
+            'name': playlistName
           },
           dataType: 'json',
           success: function (data) {
