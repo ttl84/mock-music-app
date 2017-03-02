@@ -350,6 +350,9 @@ $(function () {
     var musicIcon = document.createElement('div')
     musicIcon.classList.add('music-cover-thumbnail')
 
+    var buttonGroup = document.createElement('div')
+    buttonGroup.classList.add('music-item-button-group')
+
     var playButton = document.createElement('span')
     playButton.classList.add('music-item-button')
     addGlyphicon(playButton, 'play')
@@ -382,11 +385,13 @@ $(function () {
 
     item.appendChild(musicIcon)
     item.appendChild(createMusicTitleSubtitleNode(song['title'], song['artist']))
+    item.appendChild(buttonGroup)
+
+    buttonGroup.appendChild(addButton)
+    buttonGroup.appendChild(playButton)
     if (Number.isInteger(currentSelectedPlaylistID)) {
-      item.appendChild(removeButton)
+      buttonGroup.appendChild(removeButton)
     }
-    item.appendChild(addButton)
-    item.appendChild(playButton)
 
     return item
   }
@@ -520,13 +525,18 @@ $(function () {
     var musicIcon = document.createElement('div')
     musicIcon.classList.add('music-cover-thumbnail')
 
+    var buttonGroup = document.createElement('div')
+    buttonGroup.classList.add('music-item-button-group')
+
     var expandButton = document.createElement('span')
     expandButton.classList.add('music-item-button')
     addGlyphicon(expandButton, 'chevron-right')
 
     item.appendChild(musicIcon)
     item.appendChild(createMusicTitleSubtitleNode(playlist['name']))
-    item.appendChild(expandButton)
+    item.appendChild(buttonGroup)
+
+    buttonGroup.appendChild(expandButton)
     item.addEventListener('click', function (e) {
       currentSelectedPlaylistID = playlist['id']
       currentTab = 'playlist-content'

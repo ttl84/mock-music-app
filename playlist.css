@@ -81,7 +81,7 @@ html, body {
 }
 
 .music-item {
-  display:block;
+  display:flex;
   height: 75px;
   border-bottom-width: 1px;
   border-bottom-style: solid;
@@ -101,27 +101,20 @@ html, body {
   background-color: #cac3d5;
 }
 .music-item > * {
-  display: inline-block;
+  flex: 1;
 }
 .music-cover-thumbnail {
-  float: left;
   border-width: 1px;
   border-style: solid;
   border-color: #979797;
-  width: 46px;
-  height: 40px;
   background-color: #d8d8d8;
+  flex-grow: 0;
+  flex-shrink: 0;
+  flex-basis: 46px;
 }
 .music-title-subtitle {
   margin-left: 10px;
   width: 50%;
-}
-.text-cut-short {
-  display: block;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  overflow: hidden;
-  width: 100%;
 }
 .music-title {
   color: #835797;
@@ -131,13 +124,23 @@ html, body {
   color: #808080;
   font-size: 90%;
 }
-
+.text-cut-short {
+  display: block;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  width: 100%;
+}
+.music-item-button-group {
+  display: flex;
+  flex-grow: 0;
+  flex-shrink: 0;
+}
 .music-item-button {
-  float: right;
+  flex: 1;
   font-size: 200%;
   color: #808080;
 }
-
 .modal {
   position: fixed;
   top: 0;
