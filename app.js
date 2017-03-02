@@ -72,15 +72,11 @@ app.get('/api/playlists', (request, response) => {
 })
 
 app.post('/api/playlists/:playlistID', (request, response) => {
-  PlaylistAPI.addSongToPlaylist(request.body['song-id'], request.params.playlistID).then(result => {
+  AppAPI.addSongToPlaylist(request.body['song-id'], request.params.playlistID).then(result => {
     response.status(201)
     return result
   }, result => {
-    if (result['blame'] === 'client') {
-      response.status(400)
-    } else {
-      response.status(500)
-    }
+    response.status(500)
     return result
   }).then(result => {
     console.log('request: ' + JSON.stringify(request.body))

@@ -47,6 +47,16 @@ function printGetAllPlaylists () {
   })
 }
 
+exports.addSongToPlaylist = function (songID, playlistID) {
+  var pPlaylist = models.Playlist.findById(playlistID)
+  var pSong = models.Song.findById(songID)
+  return Promise.all([pPlaylist, pSong]).then(results => {
+    var playlist = results[0]
+    var song = results[1]
+    return playlist.addSong(song)
+  })
+}
+
 if (require.main === module) {
   printGetAllSongs()
   printGetAllPlaylists()
