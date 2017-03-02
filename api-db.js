@@ -53,7 +53,10 @@ exports.addSongToPlaylist = function (songID, playlistID) {
   return Promise.all([pPlaylist, pSong]).then(results => {
     var playlist = results[0]
     var song = results[1]
-    return playlist.addSong(song)
+    return models.PlaylistSong.create({
+      PlaylistId: playlist.get('id'),
+      SongId: song.get('id')
+    })
   })
 }
 
