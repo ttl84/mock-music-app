@@ -100,9 +100,6 @@ html, body {
 .music-item:active {
   background-color: #cac3d5;
 }
-.music-item > * {
-  flex: 1;
-}
 .music-cover-thumbnail {
   border-width: 1px;
   border-style: solid;
@@ -114,7 +111,9 @@ html, body {
 }
 .music-title-subtitle {
   margin-left: 10px;
-  width: 50%;
+  margin-right: 10px;
+  flex: 1;
+  min-width: 0;
 }
 .music-title {
   color: #835797;
