@@ -387,8 +387,8 @@ $(function () {
     item.appendChild(createMusicTitleSubtitleNode(song['title'], song['artist']))
     item.appendChild(buttonGroup)
 
-    buttonGroup.appendChild(addButton)
     buttonGroup.appendChild(playButton)
+    buttonGroup.appendChild(addButton)
     if (Number.isInteger(currentSelectedPlaylistID)) {
       buttonGroup.appendChild(removeButton)
     }
