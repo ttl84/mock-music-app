@@ -19,7 +19,7 @@ app.get('/', (request, response) => {
   response.redirect(301, '/playlists')
 })
 
-app.get(/^\/(playlists|library|search)$/, (request, response) => {
+app.get(/^\/(login|playlists|library|search)$/, (request, response) => {
   console.log('tab path received, sending html')
   response.status(200)
   response.set({

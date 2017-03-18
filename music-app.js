@@ -15,12 +15,25 @@ $(function () {
   var currentMusicItemListInstance = null
   var currentSearchBarInstance = null
   var currentSearchInputInstance = null
+  var currentUserNameInputInstance = null
+  var currentUserPasswordInputInstance = null
+  var currentLoginButtonInstance = null
 
   function switchTabCleanUp () {
     getSearchInputInstance().value = ''
     currentSelectedSongID = null
     currentSelectedPlaylistID = null
   }
+
+  function activateLoginTab () {
+    if (currentTab !== 'login') {
+      currentTab = 'login'
+      window.history.pushState({}, 'hello', 'login')
+      switchTabCleanUp()
+      redraw()
+    }
+  }
+
   function activateLibraryTab () {
     if (currentTab !== 'library') {
       currentTab = 'library'
@@ -49,7 +62,9 @@ $(function () {
 
   function redraw () {
     redrawTopBar()
-    if (currentTab === 'playlists') {
+    if (currentTab === 'login') {
+      redrawLoginContent()
+    } else if (currentTab === 'playlists') {
       redrawPlaylistListContent()
     } else if (currentTab === 'library') {
       redrawLibraryContent()
@@ -75,6 +90,19 @@ $(function () {
       document.getElementById('playlists-button').classList.add('active')
     }
   }
+
+  function redrawLoginContent () {
+    var contentView = document.getElementById('content-view')
+    removeAllChildren(contentView)
+
+    var column = createFlexColumn()
+    column.appendChild(getUserNameInputInstance())
+    column.appendChild(getUserPasswordInputInstance())
+    column.appendChild(getLoginButtonInstance())
+
+    contentView.appendChild(column)
+  }
+
   function redrawLibraryContent () {
     var musicList = getMusicItemListInstance()
     removeAllChildren(musicList)
@@ -206,6 +234,38 @@ $(function () {
     }
     return currentMusicItemListInstance
   }
+  function getUserNameInputInstance () {
+    if (!currentUserNameInputInstance) {
+      currentUserNameInputInstance = createTextInputNode()
+      currentUserNameInputInstance.classList.add('flex-item')
+      currentUserNameInputInstance.classList.add('text-input-bar')
+      currentUserNameInputInstance.setAttribute('placeholder', 'Username')
+    }
+    return currentUserNameInputInstance
+  }
+  function getUserPasswordInputInstance () {
+    if (!currentUserPasswordInputInstance) {
+      currentUserPasswordInputInstance = createTextInputNode()
+      currentUserPasswordInputInstance.classList.add('flex-item')
+      currentUserPasswordInputInstance.classList.add('text-input-bar')
+      currentUserPasswordInputInstance.setAttribute('placeholder', 'Password')
+    }
+    return currentUserPasswordInputInstance
+  }
+  function getLoginButtonInstance () {
+    if (!currentLoginButtonInstance) {
+      currentLoginButtonInstance = createButtonNode()
+      currentLoginButtonInstance.classList.add('purple-button')
+      currentLoginButtonInstance.classList.add('flex-item')
+
+      var text = document.createElement('span')
+      text.textContent = 'Log in'
+
+      currentLoginButtonInstance.appendChild(text)
+    }
+
+    return currentLoginButtonInstance
+  }
   function getSearchBarInstance () {
     if (!currentSearchBarInstance) {
       var bar = document.createElement('div')
@@ -225,10 +285,9 @@ $(function () {
     return currentSearchInputInstance
   }
   function createSearchInputNode () {
-    var input = document.createElement('input')
-    input.classList.add('search-bar')
+    var input = createTextInputNode()
+    input.classList.add('text-input-bar')
     input.setAttribute('placeholder', 'Search')
-    input.setAttribute('type', 'text')
     input.addEventListener('input', function (e) {
       currentSearchTerm = new RegExp(input.value, 'i')
       var playlistSearchPromise = getPlaylists().then(function (playlists) {
@@ -242,6 +301,20 @@ $(function () {
       })
     })
     return input
+  }
+  function createFlexColumn () {
+    var column = document.createElement('div')
+    column.classList.add('flex-column')
+    return column
+  }
+  function createTextInputNode () {
+    var input = document.createElement('input')
+    input.setAttribute('type', 'text')
+    return input
+  }
+  function createButtonNode () {
+    var button = document.createElement('button')
+    return button
   }
   function createID2SongMap (songs) {
     var songMap = []
@@ -257,9 +330,7 @@ $(function () {
     return title
   }
   function createSortButton (sortKey) {
-    var button = document.createElement('button')
-    button.classList.add('purple-button')
-    button.classList.add('content-view-flex-row-item')
+    var button = createFlexButtonNode()
 
     var text = document.createElement('span')
     text.textContent = 'Sort by ' + sortKey
@@ -422,7 +493,7 @@ $(function () {
   function createFlexInputFieldNode () {
     var input = document.createElement('input')
     input.classList.add('content-view-flex-row-item')
-    input.classList.add('search-bar')
+    input.classList.add('text-input-bar')
     input.setAttribute('type', 'text')
     return input
   }
@@ -730,7 +801,9 @@ $(function () {
   })
 
   function switchTabBasedOnPath () {
-    if (window.location.pathname === '/playlists') {
+    if (window.location.pathname === '/login') {
+      activateLoginTab()
+    } else if (window.location.pathname === '/playlists') {
       activatePlaylistsTab()
     } else if (window.location.pathname === '/library') {
       activateLibraryTab()
