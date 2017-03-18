@@ -18,7 +18,7 @@ module.exports = function (sequelize, DataType) {
           },
           unique: false
         })
-        model.Playlist.belongsToMany(models.User, {
+        models.Playlist.belongsToMany(models.User, {
           through: 'PlaylistUser'
         })
       }
