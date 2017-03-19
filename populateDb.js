@@ -31,3 +31,20 @@ Promise.all([pGetPlaylists, pPopulateSongs, pSync]).then(results => {
     })
   })
 })
+
+pSync.then(result => {
+  var users = [
+    {
+      'username': 'Foo',
+      'password': '123'
+    },
+    {
+      'username': 'Bar',
+      'password': '456'
+    }
+  ]
+
+  return Promise.all(users.map(user => {
+    return models.User.create(user)
+  }))
+})

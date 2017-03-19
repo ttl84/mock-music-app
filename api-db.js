@@ -1,4 +1,5 @@
 const models = require('./models')
+const crypto = require('crypto');
 
 function getAllSongs () {
   return models.Song.findAll({
@@ -90,6 +91,28 @@ exports.removeSongFromPlaylist = function (songID, playlistID) {
     return instance.destroy()
   }).then(result => {
     return {'status': 'ok'}
+  })
+}
+function generateKey () {
+  var sha = crypto.createHash('sha256')
+  sha.update(Math.random().toString())
+  return sha.digest('hex')
+}
+exports.createSession = function (username, password) {
+  return models.User.findOne({
+    where: {
+      'username': username,
+      'password': password
+    }
+  }).then(instance => {
+    return models.Session.create({
+      'sessionUser': instance.get('id'),
+      'sessionKey': generateKey()
+    })
+  }).then(instance => {
+    return {
+      'sessionKey': instance.get('sessionKey')
+    }
   })
 }
 

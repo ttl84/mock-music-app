@@ -96,9 +96,19 @@ $(function () {
     removeAllChildren(contentView)
 
     var column = createFlexColumn()
-    column.appendChild(getUserNameInputInstance())
-    column.appendChild(getUserPasswordInputInstance())
-    column.appendChild(getLoginButtonInstance())
+    var username = getUserNameInputInstance()
+    var password = getUserPasswordInputInstance()
+    var login = getLoginButtonInstance()
+    login.addEventListener('click', e => {
+      ajaxLogin(username.value, password.value).then(result => {
+        
+      }, error => {
+        console.log(error.reason)
+      })
+    })
+    column.appendChild(username)
+    column.appendChild(password)
+    column.appendChild(login)
 
     contentView.appendChild(column)
   }
@@ -789,7 +799,32 @@ $(function () {
       })
     }
   }
-
+  function ajaxLogin (username, password) {
+    return new Promise(function (resolve, reject) {
+      $.ajax({
+        url: '/login',
+        method: 'POST',
+        data: {
+          'username': username,
+          'password': password
+        },
+        dataType: 'json',
+        success: function (data) {
+          resolve(data)
+        },
+        error: function (jqxhr, description, errorThrown) {
+          if (jqxhr.responseJSON) {
+            reject(jqxhr.responseJSON)
+          } else {
+            reject({
+              'status': 'error',
+              'blame': 'server'
+            })
+          }
+        }
+      })
+    })
+  }
   $('#library-button').click(function (e) {
     activateLibraryTab()
   })

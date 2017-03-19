@@ -4,11 +4,16 @@ module.exports = function (sequelize, DataType) {
       type: DataType.INTEGER,
       primaryKey: true,
       autoIncrement: true
+    },
+    sessionKey: {
+      type: DataType.STRING
     }
   }, {
     classMethods: {
       associate: function (models) {
-        models.Session.belongsTo(models.User)
+        models.Session.belongsTo(models.User, {
+          'foreignKey': 'sessionUser'
+        })
       }
     }
   })

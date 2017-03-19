@@ -71,6 +71,23 @@ app.get('/api/playlists', (request, response) => {
   })
 })
 
+app.post('/login', (request, response) => {
+  AppAPI.createSession(request.body['username'], request.body['password']).then(result => {
+    response.status(200)
+    response.cookie('sessionKey', result['sessionKey'])
+    return {'status': 'ok'}
+  }, result => {
+    response.status(401)
+    return {
+      'status': 'error',
+      'reason': 'failed to authenticate'
+    }
+  }).then(result => {
+    console.log('request: ' + JSON.stringify(request.body))
+    console.log('response: ' + JSON.stringify(result))
+    response.json(result)
+  })
+})
 app.post('/api/playlists', (request, response) => {
   AppAPI.addNewPlaylist(request.body['name']).then(result => {
     response.status(200)
