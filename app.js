@@ -80,6 +80,17 @@ app.get('/api/playlists', (request, response) => {
   })
 })
 
+app.get('/api/users/', (request, response) => {
+  console.log('GET users received, sending users')
+  AppAPI.getAllUsers().then(data => {
+    response.status(200)
+    response.json(data)
+  }).catch(err => {
+    response.status(500)
+    response.json(err)
+  })
+})
+
 app.post('/login', (request, response) => {
   AppAPI.createSession(request.body['username'], request.body['password']).then(result => {
     response.status(200)

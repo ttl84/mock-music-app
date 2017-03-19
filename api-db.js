@@ -13,13 +13,6 @@ function getAllSongs () {
   })
 }
 exports.getAllSongs = getAllSongs
-function printGetAllSongs () {
-  getAllSongs().then(rows => {
-    rows.forEach(row => {
-      console.log(row)
-    })
-  })
-}
 
 exports.addNewPlaylist = function (name) {
   return models.Playlist.create({
@@ -164,13 +157,7 @@ function getAllPlaylists () {
     }
   }).then(playlistListTransform)
 }
-function printGetAllPlaylists () {
-  getAllPlaylists().then(rows => {
-    rows.forEach(row => {
-      console.log(row)
-    })
-  })
-}
+
 function sessionGetAllPlaylists (sessionKey) {
   return checkSession(sessionKey).then(username => {
     return models.User.findById(username)
@@ -179,7 +166,16 @@ function sessionGetAllPlaylists (sessionKey) {
   }).then(playlistListTransform)
 }
 exports.sessionGetAllPlaylists = sessionGetAllPlaylists
-if (require.main === module) {
-  printGetAllSongs()
-  printGetAllPlaylists()
+
+function getAllUsers () {
+  return models.User.findAll().then(instances => {
+    return {
+      'users': instances.map(instance => {
+        return {
+          'name': instance.get('username')
+        }
+      })
+    }
+  })
 }
+exports.getAllUsers = getAllUsers

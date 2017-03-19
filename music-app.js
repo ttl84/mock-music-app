@@ -162,10 +162,40 @@ $(function () {
       var playlist = values[0]
       var songMap = values[1]
 
+      var playlistHeader = createFlexRow()
       var playlistTitle = createPlaylistTitleNode(playlist['name'])
-      var songList = document.createElement('ul')
-      songList.classList.add('music-item-list')
-      songList.appendChild(playlistTitle)
+      playlistTitle.classList.add('flex-item')
+      var addUserButton = createButtonNode()
+      addUserButton.classList.add('purple-button')
+      addUserButton.classList.add('flex-item')
+      var text = document.createElement('span')
+      text.textContent = 'Add user'
+      addUserButton.appendChild(text)
+      addUserButton.addEventListener('click', e => {
+        var pGetUsers = ajaxGetUsers()
+
+        var modalContent = createModalContent()
+        modalContent.classList.add('flex-column')
+
+        var background = createModalBackground()
+        background.appendChild(modalContent)
+
+        var contentView = document.getElementById('content-view')
+        contentView.appendChild(background)
+
+        pGetUsers.then(result => {
+          var users = result['users']
+          users.forEach(user => {
+            console.log(JSON.stringify(user))
+          })
+        })
+      })
+      playlistHeader.appendChild(playlistTitle)
+      playlistHeader.appendChild(addUserButton)
+
+      var songList = getMusicItemListInstance()
+      removeAllChildren(songList)
+      songList.appendChild(playlistHeader)
       playlist['songs'].forEach(function (id) {
         songList.appendChild(createSongItemNode(songMap[id]))
       })
@@ -322,6 +352,11 @@ $(function () {
     column.classList.add('flex-column')
     return column
   }
+  function createFlexRow () {
+    var row = document.createElement('div')
+    row.classList.add('flex-row')
+    return row
+  }
   function createTextInputNode () {
     var input = document.createElement('input')
     input.setAttribute('type', 'text')
@@ -366,6 +401,19 @@ $(function () {
     return bar
   }
 
+  function createModalContent () {
+    var modalContent = document.createElement('div')
+    modalContent.classList.add('modal-content')
+
+    return modalContent
+  }
+
+  function createModalBackground () {
+    var background = document.createElement('div')
+    background.classList.add('modal')
+    background.id = 'modal-background'
+    return background
+  }
   function createPlaylistSelectionModalNode () {
     var background = document.createElement('div')
     background.classList.add('modal')
@@ -835,6 +883,27 @@ $(function () {
     })
   }
 
+  function ajaxGetUsers () {
+    return new Promise(function (resolve, reject) {
+      $.ajax({
+        url: '/api/users/',
+        method: 'GET',
+        success: function (data) {
+          resolve(data)
+        },
+        error: function (jqxhr, description, errorThrown) {
+          if (jqxhr.responseJSON) {
+            reject(jqxhr.responseJSON)
+          } else {
+            reject({
+              'status': 'error',
+              'blame': 'server'
+            })
+          }
+        }
+      })
+    })
+  }
 
   $('#library-button').click(function (e) {
     activateLibraryTab()
