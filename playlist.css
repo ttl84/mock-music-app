@@ -203,3 +203,6 @@ html, body {
 .flex-item {
   flex: 1;
 }
+.hidden {
+  display: hidden;
+}

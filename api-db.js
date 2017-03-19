@@ -121,6 +121,8 @@ exports.checkSession = function (sessionKey) {
       'sessionKey': sessionKey
     }
   }).then(result => {
+    console.log('sessionKey: ' + sessionKey)
+    console.log('instance: ' + result)
     if (result) {
       return Promise.resolve()
     } else {

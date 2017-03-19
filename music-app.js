@@ -89,6 +89,11 @@ $(function () {
     if (currentTab === 'playlist-content') {
       document.getElementById('playlists-button').classList.add('active')
     }
+    if (currentTab === 'login') {
+      buttonList.classList.add('hidden')
+    } else {
+      buttonList.classList.remove('hidden')
+    }
   }
 
   function redrawLoginContent () {
