@@ -19,20 +19,21 @@ var pPopulateSongs = Promise.all([pGetSongs, pSync]).then(results => {
   })
 })
 
-Promise.all([pGetPlaylists, pPopulateSongs, pSync]).then(results => {
+var pPopulatePlaylists = Promise.all([pGetPlaylists, pPopulateSongs, pSync]).then(results => {
   var playlists = results[0]['playlists']
-  playlists.forEach(playlistJSON => {
+  var ps = playlists.map(playlistJSON => {
     console.log(playlistJSON)
-    models.Playlist.create({
+    return models.Playlist.create({
       id: playlistJSON['id'],
       name: playlistJSON['name']
     }).then(playlistRow => {
       playlistRow.addSongs(playlistJSON['songs'])
     })
   })
+  return Promise.all(ps)
 })
 
-pSync.then(result => {
+var pPopulateUsers = pSync.then(result => {
   var users = [
     {
       'username': 'Foo',
@@ -47,4 +48,21 @@ pSync.then(result => {
   return Promise.all(users.map(user => {
     return models.User.create(user)
   }))
+})
+
+Promise.all([pPopulateUsers, pPopulatePlaylists]).then(results => {
+  models.Playlist.findOne({
+    where: {
+      name: "90's Mega Mix"
+    }
+  }).then(playlist => {
+    playlist.addUser('Foo')
+  })
+  models.Playlist.findOne({
+    where: {
+      name: 'Workout Tracks'
+    }
+  }).then(playlist => {
+    playlist.addUser('Bar')
+  })
 })

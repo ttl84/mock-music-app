@@ -11,7 +11,7 @@ module.exports = function (sequelize, DataType) {
   }, {
     classMethods: {
       associate: function (models) {
-        models.Playlist.belongsToMany(models.User, {
+        models.User.belongsToMany(models.Playlist, {
           through: 'PlaylistUser'
         })
       }
