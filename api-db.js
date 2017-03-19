@@ -115,6 +115,19 @@ exports.createSession = function (username, password) {
     }
   })
 }
+exports.checkSession = function (sessionKey) {
+  return models.Session.findOne({
+    where: {
+      'sessionKey': sessionKey
+    }
+  }).then(result => {
+    if (result) {
+      return Promise.resolve()
+    } else {
+      return Promise.reject()
+    }
+  })
+}
 
 if (require.main === module) {
   printGetAllSongs()

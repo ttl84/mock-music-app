@@ -1,6 +1,7 @@
 'use strict'
 const express = require('express')
 const bodyParser = require('body-parser')
+const cookieParser = require('cookie-parser')
 const PlaylistAPI = require('./playlist-api.js')
 const AppAPI = require('./api-db.js')
 // Create a server and provide it a callback to be executed for every HTTP request
@@ -8,18 +9,13 @@ const AppAPI = require('./api-db.js')
 var app = express()
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
+app.use(cookieParser())
 app.listen(3000)
 var fileServeOptions = {
   root: __dirname
 }
 
-app.get('/', (request, response) => {
-  console.log('no path received, redirecting')
-  response.set('cache-control', 'public, max-age=1800')
-  response.redirect(301, '/playlists')
-})
-
-app.get(/^\/(login|playlists|library|search)$/, (request, response) => {
+function sendHTML (request, response) {
   console.log('tab path received, sending html')
   response.status(200)
   response.set({
@@ -27,6 +23,22 @@ app.get(/^\/(login|playlists|library|search)$/, (request, response) => {
     'cache-control': 'public, max-age=1800'
   })
   response.sendFile('playlist.html', fileServeOptions)
+}
+
+app.get('/', (request, response) => {
+  console.log('no path received, redirecting')
+  response.redirect(301, '/playlists')
+})
+
+app.get('/login', sendHTML)
+
+app.get(/^\/(playlists|library|search)$/, (request, response) => {
+  AppAPI.checkSession(request.cookies.sessionKey).then(_ => {
+    sendHTML(request, response)
+  }, _ => {
+    console.log('session ' + request.cookies.sessionKey + ' not found, redirecting')
+    response.redirect(301, '/login')
+  })
 })
 
 app.get('/playlist.css', (request, response) => {

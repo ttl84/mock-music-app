@@ -825,6 +825,8 @@ $(function () {
       })
     })
   }
+
+
   $('#library-button').click(function (e) {
     activateLibraryTab()
   })
@@ -853,3 +855,11 @@ $(function () {
     switchTabBasedOnPath()
   })
 })
+
+function getCookie (name) {
+  var cookie = '; ' + document.cookie
+  var tmp = cookie.split('; ' + name + '=')
+  if (tmp.length === 2) {
+    return tmp[1].split(';')[0]
+  }
+}
