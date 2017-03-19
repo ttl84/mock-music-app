@@ -126,7 +126,7 @@ app.post('/api/playlists/:playlistID', (request, response) => {
 })
 
 app.delete('/api/playlists/:playlistID', (request, response) => {
-  AppAPI.removeSongFromPlaylist(request.body['song'], request.params.playlistID).then(result => {
+  AppAPI.sessionRemoveSongFromPlaylist(request.cookies.sessionKey, request.body['song'], request.params.playlistID).then(result => {
     response.status(200)
     return result
   }, result => {

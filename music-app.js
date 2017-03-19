@@ -423,7 +423,7 @@ $(function () {
         })
       }, function error (err) {
         closeModalCallback()
-        console.log('ajax error: ' + err)
+        console.log(err)
       })
     })
     return ele
@@ -465,8 +465,12 @@ $(function () {
       if (songIndex > -1) {
         playlist['songs'].splice(songIndex, 1)
       }
-      item.parentNode.removeChild(item)
-      ajaxRemoveSongFromPlaylist(songID, playlistID)
+
+      ajaxRemoveSongFromPlaylist(songID, playlistID).then(_ => {
+        item.parentNode.removeChild(item)
+      }, error => {
+        console.log(error)
+      })
     })
 
     item.appendChild(musicIcon)

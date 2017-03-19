@@ -70,18 +70,7 @@ exports.addNewPlaylist = function (name) {
   })
 }
 
-exports.removeSongFromPlaylist = function (songID, playlistID) {
-  return models.PlaylistSong.findOne({
-    where: {
-      'SongID': songID,
-      'PlaylistID': playlistID
-    }
-  }).then(instance => {
-    return instance.destroy()
-  }).then(result => {
-    return {'status': 'ok'}
-  })
-}
+
 function generateKey () {
   var sha = crypto.createHash('sha256')
   sha.update(Math.random().toString())
@@ -142,6 +131,46 @@ exports.sessionAddSongToPlaylist = function (sessionKey, songID, playlistID) {
     return models.PlaylistSong.create({
       PlaylistId: playlistInstance.get('id'),
       SongId: songInstance.get('id')
+    })
+  }).catch(result => {
+    return Promise.reject({
+      'status': 'error',
+      'reason': 'unauthorized'
+    })
+  })
+}
+function removeSongFromPlaylist (songID, playlistID) {
+  return models.PlaylistSong.findOne({
+    where: {
+      'SongID': songID,
+      'PlaylistID': playlistID
+    }
+  }).then(instance => {
+    return instance.destroy()
+  }).then(result => {
+    return {'status': 'ok'}
+  })
+}
+
+exports.sessionRemoveSongFromPlaylist = function (sessionKey, songID, playlistID) {
+  var pUser = checkSession(sessionKey)
+  var pPlaylist = models.Playlist.findById(playlistID)
+  return Promise.all([pUser, pPlaylist]).then(results => {
+    var userName = results[0]
+    var playlistInstance = results[1]
+    return playlistInstance.hasUser(userName)
+  }).then(auth => {
+    if (auth) {
+      return Promise.resolve()
+    } else {
+      return Promise.reject()
+    }
+  }).then(_ => {
+    return removeSongFromPlaylist(songID, playlistID)
+  }).catch(result => {
+    return Promise.reject({
+      'status': 'error',
+      'reason': 'unauthorized'
     })
   })
 }
