@@ -414,7 +414,7 @@ $(function () {
     ele.classList.add('playlist-selection-item')
     ele.classList.add('playlist-selection-row')
     ele.addEventListener('click', function (e) {
-      ajaxAddToPlaylist(currentSelectedSongID, playlist['id']).then(function (response) {
+      ajaxAddToPlaylist(currentSelectedSongID, playlist['id']).then(function (_) {
         getPlaylists().then(function (playlists) {
           playlists.find(function match (ele) {
             return playlist['id'] === ele['id']

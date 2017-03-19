@@ -112,9 +112,9 @@ app.post('/api/playlists', (request, response) => {
 })
 
 app.post('/api/playlists/:playlistID', (request, response) => {
-  AppAPI.addSongToPlaylist(request.body['song'], request.params.playlistID).then(result => {
-    response.status(201)
-    return result
+  AppAPI.sessionAddSongToPlaylist(request.cookies.sessionKey, request.body['song'], request.params.playlistID).then(result => {
+    response.status(200)
+    return {}
   }, result => {
     response.status(500)
     return result

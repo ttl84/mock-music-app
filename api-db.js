@@ -1,5 +1,5 @@
 const models = require('./models')
-const crypto = require('crypto');
+const crypto = require('crypto')
 
 function getAllSongs () {
   return models.Song.findAll({
@@ -48,18 +48,7 @@ function printGetAllPlaylists () {
   })
 }
 
-exports.addSongToPlaylist = function (songID, playlistID) {
-  var pPlaylist = models.Playlist.findById(playlistID)
-  var pSong = models.Song.findById(songID)
-  return Promise.all([pPlaylist, pSong]).then(results => {
-    var playlist = results[0]
-    var song = results[1]
-    return models.PlaylistSong.create({
-      PlaylistId: playlist.get('id'),
-      SongId: song.get('id')
-    })
-  })
-}
+
 
 exports.addNewPlaylist = function (name) {
   return models.Playlist.create({
@@ -115,19 +104,45 @@ exports.createSession = function (username, password) {
     }
   })
 }
-exports.checkSession = function (sessionKey) {
+function checkSession (sessionKey) {
   return models.Session.findOne({
     where: {
       'sessionKey': sessionKey
     }
   }).then(result => {
-    console.log('sessionKey: ' + sessionKey)
-    console.log('instance: ' + result)
     if (result) {
-      return Promise.resolve()
+      return result.get('sessionUser')
+    } else {
+      return Promise.reject({
+        'status': 'error',
+        'reason': 'session not found'
+      })
+    }
+  })
+}
+exports.checkSession = checkSession
+
+exports.sessionAddSongToPlaylist = function (sessionKey, songID, playlistID) {
+  var pUser = checkSession(sessionKey)
+  var pPlaylist = models.Playlist.findById(playlistID)
+  var pSong = models.Song.findById(songID)
+  return Promise.all([pUser, pPlaylist]).then(results => {
+    var userName = results[0]
+    var playlistInstance = results[1]
+    return playlistInstance.hasUser(userName)
+  }).then(auth => {
+    if (auth) {
+      return Promise.all([pPlaylist, pSong])
     } else {
       return Promise.reject()
     }
+  }).then(results => {
+    var playlistInstance = results[0]
+    var songInstance = results[1]
+    return models.PlaylistSong.create({
+      PlaylistId: playlistInstance.get('id'),
+      SongId: songInstance.get('id')
+    })
   })
 }
 
