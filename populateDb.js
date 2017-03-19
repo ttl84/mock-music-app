@@ -58,11 +58,21 @@ Promise.all([pPopulateUsers, pPopulatePlaylists]).then(results => {
   }).then(playlist => {
     playlist.addUser('Foo')
   })
+
   models.Playlist.findOne({
     where: {
       name: 'Workout Tracks'
     }
   }).then(playlist => {
+    playlist.addUser('Bar')
+  })
+
+  models.Playlist.findOne({
+    where: {
+      name: 'Daft Punk mix'
+    }
+  }).then(playlist => {
+    playlist.addUser('Foo')
     playlist.addUser('Bar')
   })
 })
