@@ -21,35 +21,6 @@ function printGetAllSongs () {
   })
 }
 
-function getAllPlaylists () {
-  return models.Playlist.findAll({
-    attributes: {
-      exclude: ['createdAt', 'updatedAt']
-    }
-  }).then(instances => {
-    return Promise.all(instances.map(playlistInstance => {
-      return playlistInstance.getSongs().then(songInstances => {
-        var playlistObj = playlistInstance.get()
-        var songIds = songInstances.map(songInstance => {
-          return songInstance.get('id')
-        })
-        playlistObj['songs'] = songIds
-        return playlistObj
-      })
-    }))
-  })
-}
-exports.getAllPlaylists = getAllPlaylists
-function printGetAllPlaylists () {
-  getAllPlaylists().then(rows => {
-    rows.forEach(row => {
-      console.log(row)
-    })
-  })
-}
-
-
-
 exports.addNewPlaylist = function (name) {
   return models.Playlist.create({
     'name': name
@@ -69,7 +40,6 @@ exports.addNewPlaylist = function (name) {
     }
   })
 }
-
 
 function generateKey () {
   var sha = crypto.createHash('sha256')
@@ -174,7 +144,41 @@ exports.sessionRemoveSongFromPlaylist = function (sessionKey, songID, playlistID
     })
   })
 }
-
+function playlistListTransform (instances) {
+  return Promise.all(instances.map(playlistInstance => {
+    return playlistInstance.getSongs().then(songInstances => {
+      return {
+        id: playlistInstance.get('id'),
+        name: playlistInstance.get('name'),
+        songs: songInstances.map(songInstance => {
+          return songInstance.get('id')
+        })
+      }
+    })
+  }))
+}
+function getAllPlaylists () {
+  return models.Playlist.findAll({
+    attributes: {
+      exclude: ['createdAt', 'updatedAt']
+    }
+  }).then(playlistListTransform)
+}
+function printGetAllPlaylists () {
+  getAllPlaylists().then(rows => {
+    rows.forEach(row => {
+      console.log(row)
+    })
+  })
+}
+function sessionGetAllPlaylists (sessionKey) {
+  return checkSession(sessionKey).then(username => {
+    return models.User.findById(username)
+  }).then(userInstance => {
+    return userInstance.getPlaylists()
+  }).then(playlistListTransform)
+}
+exports.sessionGetAllPlaylists = sessionGetAllPlaylists
 if (require.main === module) {
   printGetAllSongs()
   printGetAllPlaylists()

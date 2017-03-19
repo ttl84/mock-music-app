@@ -71,7 +71,7 @@ app.get('/api/songs', (request, response) => {
 
 app.get('/api/playlists', (request, response) => {
   console.log('GET playlists received, sending playlists')
-  AppAPI.getAllPlaylists().then(data => {
+  AppAPI.sessionGetAllPlaylists(request.cookies.sessionKey).then(data => {
     response.status(200)
     response.json(data)
   }).catch(err => {
