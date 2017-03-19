@@ -101,7 +101,7 @@ $(function () {
     var login = getLoginButtonInstance()
     login.addEventListener('click', e => {
       ajaxLogin(username.value, password.value).then(result => {
-        
+        activatePlaylistsTab()
       }, error => {
         console.log(error.reason)
       })
