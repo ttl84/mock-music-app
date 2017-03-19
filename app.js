@@ -18,26 +18,23 @@ function sendHTML (request, response) {
   console.log('tab path received, sending html')
   response.status(200)
   response.set({
-    'content-type': 'text/html'
+    'content-type': 'text/html',
+    'cache-control': 'public, max-age=1800'
   })
   response.sendFile('playlist.html', fileServeOptions)
 }
-app.get('/login', sendHTML)
+
 app.get('/', (request, response) => {
   console.log('no path received, redirecting')
-  AppAPI.checkSession(request.cookies.sessionKey).then(_ => {
-    response.redirect(301, '/playlists')
-  }, _ => {
-    console.log('session ' + request.cookies.sessionKey + ' not found, redirecting')
-    response.redirect(301, '/login')
-  })
+  response.redirect(301, '/playlists')
 })
+app.get('/login', sendHTML)
 app.get(/^\/(playlists|library|search)$/, (request, response) => {
   AppAPI.checkSession(request.cookies.sessionKey).then(_ => {
     sendHTML(request, response)
   }, _ => {
     console.log('session ' + request.cookies.sessionKey + ' not found, redirecting')
-    response.redirect(301, '/login')
+    response.redirect(303, '/login')
   })
 })
 
