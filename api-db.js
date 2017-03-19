@@ -106,7 +106,7 @@ exports.createSession = function (username, password) {
     }
   }).then(instance => {
     return models.Session.create({
-      'sessionUser': instance.get('id'),
+      'sessionUser': username,
       'sessionKey': generateKey()
     })
   }).then(instance => {

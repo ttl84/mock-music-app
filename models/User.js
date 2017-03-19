@@ -1,13 +1,8 @@
 module.exports = function (sequelize, DataType) {
   var User = sequelize.define('User', {
-    id: {
-      type: DataType.INTEGER,
-      primaryKey: true,
-      autoIncrement: true
-    },
     username: {
       type: DataType.STRING,
-      unique: true
+      primaryKey: true
     },
     password: {
       type: DataType.STRING,
