@@ -47,13 +47,18 @@ exports.createSession = function (username, password) {
     }
   }).then(instance => {
     return models.Session.create({
-      'sessionUser': username,
+      'sessionUser': instance.get('id'),
       'sessionKey': generateKey()
     })
   }).then(instance => {
     return {
       'sessionKey': instance.get('sessionKey')
     }
+  }).catch(_ => {
+    return Promise.reject({
+      'status': 'error',
+      'reason': 'not authenticated'
+    })
   })
 }
 function checkSession (sessionKey) {
@@ -79,9 +84,9 @@ exports.sessionAddSongToPlaylist = function (sessionKey, songID, playlistID) {
   var pPlaylist = models.Playlist.findById(playlistID)
   var pSong = models.Song.findById(songID)
   return Promise.all([pUser, pPlaylist]).then(results => {
-    var userName = results[0]
+    var userID = results[0]
     var playlistInstance = results[1]
-    return playlistInstance.hasUser(userName)
+    return playlistInstance.hasUser(userID)
   }).then(auth => {
     if (auth) {
       return Promise.all([pPlaylist, pSong])
@@ -119,9 +124,9 @@ exports.sessionRemoveSongFromPlaylist = function (sessionKey, songID, playlistID
   var pUser = checkSession(sessionKey)
   var pPlaylist = models.Playlist.findById(playlistID)
   return Promise.all([pUser, pPlaylist]).then(results => {
-    var userName = results[0]
+    var userID = results[0]
     var playlistInstance = results[1]
-    return playlistInstance.hasUser(userName)
+    return playlistInstance.hasUser(userID)
   }).then(auth => {
     if (auth) {
       return Promise.resolve()
@@ -159,8 +164,8 @@ function getAllPlaylists () {
 }
 
 function sessionGetAllPlaylists (sessionKey) {
-  return checkSession(sessionKey).then(username => {
-    return models.User.findById(username)
+  return checkSession(sessionKey).then(userID => {
+    return models.User.findById(userID)
   }).then(userInstance => {
     return userInstance.getPlaylists()
   }).then(playlistListTransform)
@@ -172,6 +177,7 @@ function getAllUsers () {
     return {
       'users': instances.map(instance => {
         return {
+          'id': instance.get('id'),
           'name': instance.get('username')
         }
       })

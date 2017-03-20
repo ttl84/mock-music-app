@@ -51,28 +51,46 @@ var pPopulateUsers = pSync.then(result => {
 })
 
 Promise.all([pPopulateUsers, pPopulatePlaylists]).then(results => {
-  models.Playlist.findOne({
+  var pFoo = models.User.findOne({
+    where: {
+      username: 'Foo'
+    }
+  })
+  var pBar = models.User.findOne({
+    where: {
+      username: 'Bar'
+    }
+  })
+  var p90 = models.Playlist.findOne({
     where: {
       name: "90's Mega Mix"
     }
-  }).then(playlist => {
-    playlist.addUser('Foo')
   })
 
-  models.Playlist.findOne({
+  var pWorkout = models.Playlist.findOne({
     where: {
       name: 'Workout Tracks'
     }
-  }).then(playlist => {
-    playlist.addUser('Bar')
   })
 
-  models.Playlist.findOne({
+  var pDaft = models.Playlist.findOne({
     where: {
       name: 'Daft Punk mix'
     }
-  }).then(playlist => {
-    playlist.addUser('Foo')
-    playlist.addUser('Bar')
+  })
+
+  Promise.all([pFoo, p90, pDaft]).then(results => {
+    var foo = results[0]
+    var ninety = results[1]
+    var daft = results[2]
+    foo.addPlaylist(ninety)
+    foo.addPlaylist(daft)
+  })
+  Promise.all([pBar, pWorkout, pDaft]).then(results => {
+    var bar = results[0]
+    var workout = results[1]
+    var daft = results[2]
+    bar.addPlaylist(workout)
+    bar.addPlaylist(daft)
   })
 })
