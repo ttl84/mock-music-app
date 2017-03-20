@@ -19,6 +19,13 @@ $(function () {
   var currentUserPasswordInputInstance = null
   var currentLoginButtonInstance = null
 
+  // websocket
+  var socket = io()
+  socket.emit('getPlaylistContent')
+  socket.on('receivePlaylistContent', data => {
+    console.log('receive from socket')
+  })
+
   function switchTabCleanUp () {
     getSearchInputInstance().value = ''
     currentSelectedSongID = null
@@ -148,6 +155,7 @@ $(function () {
       contentView.appendChild(playlistList)
     })
   }
+
   function redrawPlaylistContent () {
     var playlistPromise = getPlaylists().then(function (playlists) {
       return playlists.find(function (playlist) {
@@ -969,11 +977,3 @@ $(function () {
     switchTabBasedOnPath()
   })
 })
-
-function getCookie (name) {
-  var cookie = '; ' + document.cookie
-  var tmp = cookie.split('; ' + name + '=')
-  if (tmp.length === 2) {
-    return tmp[1].split(';')[0]
-  }
-}

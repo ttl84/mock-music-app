@@ -6,10 +6,14 @@ const AppAPI = require('./api-db.js')
 // Create a server and provide it a callback to be executed for every HTTP request
 // coming into localhost:3000.
 var app = express()
+var server = require('http').Server(app)
+var io = require('socket.io')(server)
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(cookieParser())
-app.listen(3000)
+
+server.listen(3000)
+
 var fileServeOptions = {
   root: __dirname
 }
@@ -165,4 +169,28 @@ app.delete('/api/playlists/:playlistID', (request, response) => {
 app.get('*', (request, response) => {
   console.log('request not understood: ' + request.url)
   response.sendStatus(404)
+})
+
+function parseCookie (str, name) {
+  str = '; ' + str
+  var tmp = str.split('; ' + name + '=')
+  if (tmp.length === 2) {
+    return tmp[1].split(';')[0]
+  }
+}
+
+io.use((socket, next) => {
+  // parse only the cookies I care about
+  var header = socket.request.headers
+  var cookie = {}
+  cookie.sessionKey = parseCookie(header.cookie, 'sessionKey')
+  header.cookie = cookie
+  next()
+})
+io.on('connection', socket => {
+  console.log('socket connection with ' + socket.request.headers.cookie.sessionKey)
+
+  socket.on('getPlaylistContent', data => {
+    socket.emit('receivePlaylistContent')
+  })
 })
