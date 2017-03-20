@@ -1,4 +1,5 @@
 'use strict'
+const EventEmitter = require('events')
 const express = require('express')
 const bodyParser = require('body-parser')
 const cookieParser = require('cookie-parser')
@@ -11,6 +12,9 @@ var io = require('socket.io')(server)
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(cookieParser())
+
+// Event emitter for database changes
+var dbEmitter = new EventEmitter()
 
 server.listen(3000)
 
@@ -127,7 +131,10 @@ app.post('/api/playlists', (request, response) => {
 })
 
 app.post('/api/playlists/:playlistID', (request, response) => {
-  AppAPI.sessionAddSongToPlaylist(request.cookies.sessionKey, request.body['song'], request.params.playlistID).then(result => {
+  var songID = request.body['song']
+  var playlistID = request.params.playlistID
+  AppAPI.sessionAddSongToPlaylist(request.cookies.sessionKey, songID, playlistID).then(result => {
+    dbEmitter.emit('addSongToPlaylist', songID, playlistID)
     response.status(200)
     return {}
   }, result => {
@@ -190,14 +197,36 @@ io.use((socket, next) => {
 io.on('connection', socket => {
   console.log('socket connection with ' + socket.request.headers.cookie.sessionKey)
 
+  var interestedPlaylists = {}
+
   socket.on('getPlaylistContent', data => {
-    AppAPI.sessionGetSongIDsFromPlaylist(socket.request.headers.cookie.sessionKey, data['playlistID']).then(songIDs => {
-      songIDs.forEach(id => {
+    var playlistID = data['playlistID']
+    // do nothing if this connection has already received playlist content
+    if (interestedPlaylists[playlistID]) {
+      return
+    }
+    AppAPI.sessionGetSongIDsFromPlaylist(socket.request.headers.cookie.sessionKey, playlistID).then(songIDs => {
+      // remember that this connection has received playlist content already
+      interestedPlaylists[playlistID] = true
+
+      songIDs.forEach(songID => {
         socket.emit('receivePlaylistContent', {
-          'playlistID': data['playlistID'],
-          'songID': id
+          'playlistID': playlistID,
+          'songID': songID
         })
       })
+    })
+  })
+
+  dbEmitter.on('addSongToPlaylist', (songID, playlistID) => {
+    // don't send update messages if the connection never asked for this playlist
+    if (!interestedPlaylists[playlistID]) {
+      return
+    }
+    console.log('sending update message')
+    socket.emit('receivePlaylistContent', {
+      'playlistID': playlistID,
+      'songID': songID
     })
   })
 })
