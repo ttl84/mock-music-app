@@ -43,10 +43,10 @@ function generateKey () {
 function comparePassword (password, hash) {
   return new Promise((resolve, reject) => {
     bcrypt.compare(password, hash, (err, res) => {
-      if (err) {
-        reject(err)
-      } else {
+      if (res) {
         resolve(res)
+      } else {
+        reject(err)
       }
     })
   })
