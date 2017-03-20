@@ -166,10 +166,12 @@ html, body {
 .playlist-selection-cancel {
   float: right;
 }
-.playlist-selection-item {
+.modal-item {
   color: #835797;
-  margin: 30px;
   display: block;
+  text-align: center;
+  margin-top: 10px;
+  margin-bottom: 10px;
 }
 .content-view-flex-row {
   display: flex;
@@ -202,6 +204,9 @@ html, body {
 }
 .flex-item {
   flex: 1;
+}
+.flex-item-nogrow {
+  flex-grow: 0;
 }
 .hidden {
   display: hidden;

@@ -135,7 +135,19 @@ app.post('/api/playlists/:playlistID', (request, response) => {
     response.json(result)
   })
 })
-
+app.post('/api/playlists/:playlistID/users', (request, response) => {
+  AppAPI.sessionAddUserToPlaylist(request.cookies.sessionKey, request.body['user'], request.params.playlistID).then(result => {
+    response.status(200)
+    return {}
+  }, result => {
+    response.status(500)
+    return result
+  }).then(result => {
+    console.log('request: ' + JSON.stringify(request.body))
+    console.log('response: ' + JSON.stringify(result))
+    response.json(result)
+  })
+})
 app.delete('/api/playlists/:playlistID', (request, response) => {
   AppAPI.sessionRemoveSongFromPlaylist(request.cookies.sessionKey, request.body['song'], request.params.playlistID).then(result => {
     response.status(200)

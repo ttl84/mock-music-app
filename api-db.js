@@ -185,3 +185,41 @@ function getAllUsers () {
   })
 }
 exports.getAllUsers = getAllUsers
+
+function addUserToPlaylist (userID, playlistID) {
+  return models.Playlist.findById(playlistID).then(instance => {
+    if (instance) {
+      return instance.addUser(userID).catch(error => {
+        if (error['name'] === 'SequelizeUniqueConstraintError') {
+          return Promise.resolve()
+        } else {
+          return Promise.reject(error)
+        }
+      })
+    } else {
+      return Promise.reject({
+        'status': 'error',
+        'reason': 'playlist not found'
+      })
+    }
+  })
+}
+function sessionAddUserToPlaylist (sessionKey, userID, playlistID) {
+  var pUser = checkSession(sessionKey)
+  var pPlaylist = models.Playlist.findById(playlistID)
+  return Promise.all([pUser, pPlaylist]).then(results => {
+    var userID = results[0]
+    var playlistInstance = results[1]
+    return playlistInstance.hasUser(userID)
+  }).then(auth => {
+    if (auth) {
+      return addUserToPlaylist(userID, playlistID)
+    } else {
+      return Promise.reject({
+        'status': 'error',
+        'reason': 'not authorized'
+      })
+    }
+  })
+}
+exports.sessionAddUserToPlaylist = sessionAddUserToPlaylist

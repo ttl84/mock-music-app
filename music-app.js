@@ -186,7 +186,18 @@ $(function () {
         pGetUsers.then(result => {
           var users = result['users']
           users.forEach(user => {
-            console.log(JSON.stringify(user))
+            var userItem = document.createElement('span')
+            userItem.textContent = user['name']
+            userItem.classList.add('flex-item-nogrow')
+            userItem.classList.add('modal-item')
+            userItem.addEventListener('click', e => {
+              ajaxAddUserToPlaylist(user['id'], currentSelectedPlaylistID).catch(error => {
+                console.log(error)
+              }).then(_ => {
+                background.parentNode.removeChild(background)
+              })
+            })
+            modalContent.appendChild(userItem)
           })
         })
       })
@@ -459,8 +470,7 @@ $(function () {
   function createPlaylistSelectionPlaylistNode (playlist, closeModalCallback) {
     var ele = document.createElement('span')
     ele.textContent = playlist['name']
-    ele.classList.add('playlist-selection-item')
-    ele.classList.add('playlist-selection-row')
+    ele.classList.add('modal-item')
     ele.addEventListener('click', function (e) {
       ajaxAddToPlaylist(currentSelectedSongID, playlist['id']).then(function (_) {
         getPlaylists().then(function (playlists) {
@@ -888,6 +898,32 @@ $(function () {
       $.ajax({
         url: '/api/users/',
         method: 'GET',
+        success: function (data) {
+          resolve(data)
+        },
+        error: function (jqxhr, description, errorThrown) {
+          if (jqxhr.responseJSON) {
+            reject(jqxhr.responseJSON)
+          } else {
+            reject({
+              'status': 'error',
+              'blame': 'server'
+            })
+          }
+        }
+      })
+    })
+  }
+
+  function ajaxAddUserToPlaylist (userID, playlistID) {
+    return new Promise(function (resolve, reject) {
+      $.ajax({
+        url: '/api/playlists/' + playlistID + '/users',
+        method: 'POST',
+        data: {
+          'user': userID
+        },
+        dataType: 'json',
         success: function (data) {
           resolve(data)
         },
