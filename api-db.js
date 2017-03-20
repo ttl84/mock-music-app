@@ -1,6 +1,6 @@
 const models = require('./models')
 const crypto = require('crypto')
-
+const bcrypt = require('bcrypt')
 function getAllSongs () {
   return models.Song.findAll({
     attributes: {
@@ -39,13 +39,34 @@ function generateKey () {
   sha.update(Math.random().toString())
   return sha.digest('hex')
 }
-exports.createSession = function (username, password) {
-  return models.User.findOne({
+
+function comparePassword (password, hash) {
+  return new Promise((resolve, reject) => {
+    bcrypt.compare(password, hash, (err, res) => {
+      if (err) {
+        reject(err)
+      } else {
+        resolve(res)
+      }
+    })
+  })
+}
+function authenticate (username, password) {
+  var pUser = models.User.findOne({
     where: {
-      'username': username,
-      'password': password
+      'username': username
     }
-  }).then(instance => {
+  })
+  return pUser.then(instance => {
+    return instance.get('hash')
+  }).then(hash => {
+    return comparePassword(password, hash)
+  }).then(_ => {
+    return pUser
+  })
+}
+exports.createSession = function (username, password) {
+  return authenticate(username, password).then(instance => {
     return models.Session.create({
       'sessionUser': instance.get('id'),
       'sessionKey': generateKey()

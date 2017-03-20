@@ -1,5 +1,6 @@
 const models = require('./models')
 const fshelper = require('./fshelper')
+const bcrypt = require('bcrypt')
 
 var pGetSongs = fshelper.readJSON('songs.json')
 var pGetPlaylists = fshelper.readJSON('playlists.json')
@@ -37,11 +38,11 @@ var pPopulateUsers = pSync.then(result => {
   var users = [
     {
       'username': 'Foo',
-      'password': '123'
+      'hash': bcrypt.hashSync('123', 10)
     },
     {
       'username': 'Bar',
-      'password': '456'
+      'hash': bcrypt.hashSync('456', 10)
     }
   ]
 
