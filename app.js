@@ -191,6 +191,13 @@ io.on('connection', socket => {
   console.log('socket connection with ' + socket.request.headers.cookie.sessionKey)
 
   socket.on('getPlaylistContent', data => {
-    socket.emit('receivePlaylistContent')
+    AppAPI.sessionGetSongIDsFromPlaylist(socket.request.headers.cookie.sessionKey, data['playlistID']).then(songIDs => {
+      songIDs.forEach(id => {
+        socket.emit('receivePlaylistContent', {
+          'playlistID': data['playlistID'],
+          'songID': id
+        })
+      })
+    })
   })
 })

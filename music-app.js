@@ -18,13 +18,11 @@ $(function () {
   var currentUserNameInputInstance = null
   var currentUserPasswordInputInstance = null
   var currentLoginButtonInstance = null
+  var currentPlaylistContentInstances = {}
+  var currentSongMap = {}
 
   // websocket
   var socket = io()
-  socket.emit('getPlaylistContent')
-  socket.on('receivePlaylistContent', data => {
-    console.log('receive from socket')
-  })
 
   function switchTabCleanUp () {
     getSearchInputInstance().value = ''
@@ -155,21 +153,34 @@ $(function () {
       contentView.appendChild(playlistList)
     })
   }
+  function getPlaylistContentInstance (playlistID) {
+    if (!currentPlaylistContentInstances[playlistID]) {
+      var list = document.createElement('ul')
+      list.classList.add('music-item-list')
+      currentPlaylistContentInstances[playlistID] = list
+      socket.emit('getPlaylistContent', {
+        'playlistID': playlistID
+      })
+    }
+    return currentPlaylistContentInstances[playlistID]
+  }
+
+  socket.on('receivePlaylistContent', data => {
+    console.log('receive from socket')
+    var playlistID = data['playlistID']
+    var songID = data['songID']
+    var songList = getPlaylistContentInstance(playlistID)
+    getSongs().then(_ => {
+      songList.appendChild(createSongItemNode(songID))
+    })
+  })
 
   function redrawPlaylistContent () {
-    var playlistPromise = getPlaylists().then(function (playlists) {
+    getPlaylists().then(function (playlists) {
       return playlists.find(function (playlist) {
         return playlist['id'] === currentSelectedPlaylistID
       })
-    })
-    var songmapPromise = getSongs().then(function (songs) {
-      return createID2SongMap(songs)
-    })
-
-    Promise.all([playlistPromise, songmapPromise]).then(function (values) {
-      var playlist = values[0]
-      var songMap = values[1]
-
+    }).then(function (playlist) {
       var playlistHeader = createFlexRow()
       var playlistTitle = createPlaylistTitleNode(playlist['name'])
       playlistTitle.classList.add('flex-item')
@@ -212,14 +223,10 @@ $(function () {
       playlistHeader.appendChild(playlistTitle)
       playlistHeader.appendChild(addUserButton)
 
-      var songList = getMusicItemListInstance()
-      removeAllChildren(songList)
-      songList.appendChild(playlistHeader)
-      playlist['songs'].forEach(function (id) {
-        songList.appendChild(createSongItemNode(songMap[id]))
-      })
+      var songList = getPlaylistContentInstance(currentSelectedPlaylistID)
       var contentView = document.getElementById('content-view')
       removeAllChildren(contentView)
+      contentView.appendChild(playlistHeader)
       contentView.appendChild(songList)
     })
   }
@@ -495,7 +502,8 @@ $(function () {
     return ele
   }
 
-  function createSongItemNode (song) {
+  function createSongItemNode (songID) {
+    var song = currentSongMap[songID]
     var item = document.createElement('li')
     item.classList.add('music-item')
 
@@ -732,6 +740,7 @@ $(function () {
     if (forceFetch || MUSIC_DATA['songs'] === undefined) {
       return ajaxFetchSongs().then(function (songs) {
         MUSIC_DATA['songs'] = songs
+        currentSongMap = createID2SongMap(songs)
         return songs
       })
     } else {

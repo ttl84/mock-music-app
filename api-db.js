@@ -244,3 +244,34 @@ function sessionAddUserToPlaylist (sessionKey, userID, playlistID) {
   })
 }
 exports.sessionAddUserToPlaylist = sessionAddUserToPlaylist
+
+function sessionGetPlaylist (sessionKey, playlistID) {
+  var pUser = checkSession(sessionKey)
+  var pPlaylist = models.Playlist.findById(playlistID)
+  return Promise.all([pUser, pPlaylist]).then(results => {
+    var userID = results[0]
+    var playlistInstance = results[1]
+    return playlistInstance.hasUser(userID)
+  }).then(auth => {
+    if (auth) {
+      return pPlaylist
+    } else {
+      return Promise.reject({
+        'status': 'error',
+        'reason': 'not authorized'
+      })
+    }
+  })
+}
+function sessionGetSongIDsFromPlaylist (sessionKey, playlistID) {
+  return sessionGetPlaylist(sessionKey, playlistID)
+  .then(playlistInstance => {
+    return playlistInstance.getSongs()
+  })
+  .then(songInstances => {
+    return songInstances.map(instance => {
+      return instance.get('id')
+    })
+  })
+}
+exports.sessionGetSongIDsFromPlaylist = sessionGetSongIDsFromPlaylist
