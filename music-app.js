@@ -22,7 +22,28 @@ $(function () {
   var currentSongMap = {}
 
   // websocket
-  var socket = io()
+  var socket = null
+  function reconnectSocket () {
+    socket = io()
+    socket.on('addPlaylistContent', data => {
+      console.log('addPlaylistContent: ' + JSON.stringify(data))
+      var playlistID = data['playlistID']
+      var songID = data['songID']
+      var songList = getPlaylistSongListDomInstance(playlistID)
+      getSongs().then(_ => {
+        songList.appendChild(getPlaylistSongItemDomInstance(playlistID, songID))
+      })
+    })
+    socket.on('deletePlaylistContent', data => {
+      console.log('deletePlaylistContent: ' + JSON.stringify(data))
+      var playlistID = data['playlistID']
+      var songID = data['songID']
+      var dom = popPlaylistSongItemDomInstance(playlistID, songID)
+      if (dom) {
+        dom.parentNode.removeChild(dom)
+      }
+    })
+  }
 
   function switchTabCleanUp () {
     getSearchInputInstance().value = ''
@@ -111,6 +132,7 @@ $(function () {
     var login = getLoginButtonInstance()
     login.addEventListener('click', e => {
       ajaxLogin(username.value, password.value).then(result => {
+        reconnectSocket()
         activatePlaylistsTab()
       }, error => {
         console.log(error.reason)
@@ -182,25 +204,6 @@ $(function () {
       return domCache[key].shift()
     }
   }
-
-  socket.on('addPlaylistContent', data => {
-    console.log('addPlaylistContent: ' + JSON.stringify(data))
-    var playlistID = data['playlistID']
-    var songID = data['songID']
-    var songList = getPlaylistSongListDomInstance(playlistID)
-    getSongs().then(_ => {
-      songList.appendChild(getPlaylistSongItemDomInstance(playlistID, songID))
-    })
-  })
-  socket.on('deletePlaylistContent', data => {
-    console.log('deletePlaylistContent: ' + JSON.stringify(data))
-    var playlistID = data['playlistID']
-    var songID = data['songID']
-    var dom = popPlaylistSongItemDomInstance(playlistID, songID)
-    if (dom) {
-      dom.parentNode.removeChild(dom)
-    }
-  })
 
   function redrawPlaylistContent () {
     getPlaylists().then(function (playlists) {

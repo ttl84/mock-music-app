@@ -198,11 +198,12 @@ io.use((socket, next) => {
   next()
 })
 io.on('connection', socket => {
-  console.log('socket connection with ' + socket.request.headers.cookie.sessionKey)
+  console.log('[connect] ' + socket.request.headers.cookie.sessionKey)
 
   var interestedPlaylists = {}
 
   socket.on('getPlaylistContent', data => {
+    console.log('[request][getPlaylistContent] ' + socket.request.headers.cookie.sessionKey)
     var playlistID = data['playlistID']
     // do nothing if this connection has already received playlist content
     if (interestedPlaylists[playlistID]) {
@@ -218,6 +219,8 @@ io.on('connection', socket => {
           'songID': songID
         })
       })
+    }, error => {
+      console.log('[error] ' + JSON.stringify(error))
     })
   })
 
