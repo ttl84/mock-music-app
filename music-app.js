@@ -18,7 +18,7 @@ $(function () {
   var currentUserNameInputInstance = null
   var currentUserPasswordInputInstance = null
   var currentLoginButtonInstance = null
-  var currentPlaylistContentInstances = {}
+  var domCache = {}
   var currentSongMap = {}
 
   // websocket
@@ -153,26 +153,53 @@ $(function () {
       contentView.appendChild(playlistList)
     })
   }
-  function getPlaylistContentInstance (playlistID) {
-    if (!currentPlaylistContentInstances[playlistID]) {
+  function getPlaylistSongListDomInstance (playlistID) {
+    var key = '/playlist/' + playlistID + '/songlist'
+    if (!domCache[key]) {
       var list = document.createElement('ul')
       list.classList.add('music-item-list')
-      currentPlaylistContentInstances[playlistID] = list
+      domCache[key] = list
       socket.emit('getPlaylistContent', {
         'playlistID': playlistID
       })
     }
-    return currentPlaylistContentInstances[playlistID]
+    return domCache[key]
+  }
+  function getPlaylistSongItemDomInstance (playlistID, songID) {
+    var key = '/playlist/' + playlistID + '/song/' + songID + '/songitem'
+    if (!domCache[key]) {
+      domCache[key] = []
+    }
+    var song = currentSongMap[songID]
+    var newDom = createSongItemNode(song)
+    domCache[key].push(newDom)
+    return newDom
   }
 
-  socket.on('receivePlaylistContent', data => {
-    console.log('receive from socket')
+  function popPlaylistSongItemDomInstance (playlistID, songID) {
+    var key = '/playlist/' + playlistID + '/song/' + songID + '/songitem'
+    if (domCache[key]) {
+      return domCache[key].shift()
+    }
+  }
+
+  socket.on('addPlaylistContent', data => {
+    console.log('addPlaylistContent: ' + JSON.stringify(data))
     var playlistID = data['playlistID']
     var songID = data['songID']
-    var songList = getPlaylistContentInstance(playlistID)
+    var songList = getPlaylistSongListDomInstance(playlistID)
     getSongs().then(_ => {
-      songList.appendChild(createSongItemNode(songID))
+      songList.appendChild(getPlaylistSongItemDomInstance(playlistID, songID))
     })
+  })
+  socket.on('deletePlaylistContent', data => {
+    console.log('deletePlaylistContent: ' + JSON.stringify(data))
+    var playlistID = data['playlistID']
+    var songID = data['songID']
+    var dom = popPlaylistSongItemDomInstance(playlistID, songID)
+    if (dom) {
+      dom.parentNode.removeChild(dom)
+    }
   })
 
   function redrawPlaylistContent () {
@@ -223,7 +250,7 @@ $(function () {
       playlistHeader.appendChild(playlistTitle)
       playlistHeader.appendChild(addUserButton)
 
-      var songList = getPlaylistContentInstance(currentSelectedPlaylistID)
+      var songList = getPlaylistSongListDomInstance(currentSelectedPlaylistID)
       var contentView = document.getElementById('content-view')
       removeAllChildren(contentView)
       contentView.appendChild(playlistHeader)
@@ -448,7 +475,6 @@ $(function () {
       var myself = document.getElementById('current-modal')
       myself.parentNode.removeChild(myself)
       currentSelectedSongID = null
-      redraw()
     }
 
     var modalContent = document.createElement('div')
@@ -502,8 +528,7 @@ $(function () {
     return ele
   }
 
-  function createSongItemNode (songID) {
-    var song = currentSongMap[songID]
+  function createSongItemNode (song) {
     var item = document.createElement('li')
     item.classList.add('music-item')
 
@@ -540,9 +565,7 @@ $(function () {
         playlist['songs'].splice(songIndex, 1)
       }
 
-      ajaxRemoveSongFromPlaylist(songID, playlistID).then(_ => {
-        item.parentNode.removeChild(item)
-      }, error => {
+      ajaxRemoveSongFromPlaylist(songID, playlistID).catch(error => {
         console.log(error)
       })
     })

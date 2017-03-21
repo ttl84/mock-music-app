@@ -160,7 +160,10 @@ app.post('/api/playlists/:playlistID/users', (request, response) => {
   })
 })
 app.delete('/api/playlists/:playlistID', (request, response) => {
-  AppAPI.sessionRemoveSongFromPlaylist(request.cookies.sessionKey, request.body['song'], request.params.playlistID).then(result => {
+  var songID = request.body['song']
+  var playlistID = request.params.playlistID
+  AppAPI.sessionRemoveSongFromPlaylist(request.cookies.sessionKey, songID, playlistID).then(result => {
+    dbEmitter.emit('deleteSongToPlaylist', songID, playlistID)
     response.status(200)
     return result
   }, result => {
@@ -210,7 +213,7 @@ io.on('connection', socket => {
       interestedPlaylists[playlistID] = true
 
       songIDs.forEach(songID => {
-        socket.emit('receivePlaylistContent', {
+        socket.emit('addPlaylistContent', {
           'playlistID': playlistID,
           'songID': songID
         })
@@ -223,10 +226,23 @@ io.on('connection', socket => {
     if (!interestedPlaylists[playlistID]) {
       return
     }
-    console.log('sending update message')
-    socket.emit('receivePlaylistContent', {
+    var message = {
       'playlistID': playlistID,
       'songID': songID
-    })
+    }
+    console.log('sending update message: ' + JSON.stringify(message))
+    socket.emit('addPlaylistContent', message)
+  })
+  dbEmitter.on('deleteSongToPlaylist', (songID, playlistID) => {
+    // don't send update messages if the connection never asked for this playlist
+    if (!interestedPlaylists[playlistID]) {
+      return
+    }
+    var message = {
+      'playlistID': playlistID,
+      'songID': songID
+    }
+    console.log('sending delete message')
+    socket.emit('deletePlaylistContent', message)
   })
 })
