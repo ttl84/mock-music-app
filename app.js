@@ -117,7 +117,7 @@ app.post('/login', (request, response) => {
   })
 })
 app.post('/api/playlists', (request, response) => {
-  AppAPI.addNewPlaylist(request.body['name']).then(result => {
+  AppAPI.sessionCreatePlaylist(request.cookies.sessionKey, request.body['name']).then(result => {
     response.status(200)
     return result
   }, result => {

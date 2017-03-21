@@ -14,26 +14,6 @@ function getAllSongs () {
 }
 exports.getAllSongs = getAllSongs
 
-exports.addNewPlaylist = function (name) {
-  return models.Playlist.create({
-    'name': name
-  }).then(instance => {
-    // redundant query here because the instance object returned here doesn't have
-    // an id yet, even though it does in the database. By looking it up manually,
-    // the instance object will contain the id value.
-    return models.Playlist.findOne({
-      where: {
-        'name': name
-      }
-    })
-  }).then(instance => {
-    return {
-      'id': instance.get('id'),
-      'name': instance.get('name')
-    }
-  })
-}
-
 function generateKey () {
   var sha = crypto.createHash('sha256')
   sha.update(Math.random().toString())
@@ -275,3 +255,37 @@ function sessionGetSongIDsFromPlaylist (sessionKey, playlistID) {
   })
 }
 exports.sessionGetSongIDsFromPlaylist = sessionGetSongIDsFromPlaylist
+
+function createPlaylist (name) {
+  return models.Playlist.create({
+    'name': name
+  }).then(instance => {
+    // redundant query here because the instance object returned here doesn't have
+    // an id yet, even though it does in the database. By looking it up manually,
+    // the instance object will contain the id value.
+    return models.Playlist.findOne({
+      where: {
+        'name': name
+      }
+    })
+  }).then(instance => {
+    return {
+      'id': instance.get('id'),
+      'name': instance.get('name')
+    }
+  })
+}
+function sessionCreatePlaylist (sessionKey, name) {
+  var pUser = checkSession(sessionKey)
+  var pPlaylist = pUser.then(_ => {
+    return createPlaylist(name)
+  })
+  return Promise.all([pUser, pPlaylist]).then(results => {
+    var userID = results[0]
+    var playlist = results[1]
+    return addUserToPlaylist(userID, playlist['id'])
+  }).then(_ => {
+    return pPlaylist
+  })
+}
+exports.sessionCreatePlaylist = sessionCreatePlaylist
