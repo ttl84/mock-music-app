@@ -23,26 +23,28 @@ $(function () {
 
   // websocket
   var socket = null
-  function reconnectSocket () {
-    socket = io()
-    socket.on('addPlaylistContent', data => {
-      console.log('addPlaylistContent: ' + JSON.stringify(data))
-      var playlistID = data['playlistID']
-      var songID = data['songID']
-      var songList = getPlaylistSongListDomInstance(playlistID)
-      getSongs().then(_ => {
-        songList.appendChild(getPlaylistSongItemDomInstance(playlistID, songID))
+  function connectSocket () {
+    if (!socket) {
+      socket = io()
+      socket.on('addPlaylistContent', data => {
+        console.log('addPlaylistContent: ' + JSON.stringify(data))
+        var playlistID = data['playlistID']
+        var songID = data['songID']
+        var songList = getPlaylistSongListDomInstance(playlistID)
+        getSongs().then(_ => {
+          songList.appendChild(getPlaylistSongItemDomInstance(playlistID, songID))
+        })
       })
-    })
-    socket.on('deletePlaylistContent', data => {
-      console.log('deletePlaylistContent: ' + JSON.stringify(data))
-      var playlistID = data['playlistID']
-      var songID = data['songID']
-      var dom = popPlaylistSongItemDomInstance(playlistID, songID)
-      if (dom) {
-        dom.parentNode.removeChild(dom)
-      }
-    })
+      socket.on('deletePlaylistContent', data => {
+        console.log('deletePlaylistContent: ' + JSON.stringify(data))
+        var playlistID = data['playlistID']
+        var songID = data['songID']
+        var dom = popPlaylistSongItemDomInstance(playlistID, songID)
+        if (dom) {
+          dom.parentNode.removeChild(dom)
+        }
+      })
+    }
   }
 
   function switchTabCleanUp () {
@@ -74,6 +76,7 @@ $(function () {
       currentTab = 'playlists'
       window.history.pushState({}, 'hello', 'playlists')
       switchTabCleanUp()
+      connectSocket()
       redraw()
     }
   }
@@ -132,7 +135,6 @@ $(function () {
     var login = getLoginButtonInstance()
     login.addEventListener('click', e => {
       ajaxLogin(username.value, password.value).then(result => {
-        reconnectSocket()
         activatePlaylistsTab()
       }, error => {
         console.log(error.reason)
@@ -995,6 +997,7 @@ $(function () {
   })
 
   function switchTabBasedOnPath () {
+    console.log('switching page to: ' + window.location.pathname)
     if (window.location.pathname === '/login') {
       activateLoginTab()
     } else if (window.location.pathname === '/playlists') {
