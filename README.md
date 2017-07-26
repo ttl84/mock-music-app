@@ -1,5 +1,9 @@
 node version: 6.94
 
+Users:
+Foo/123
+Bar/456
+
 Note:
 The addSongToPlaylist api is a POST message, so duplicate songs can be added
 to a playlist. This is a problem because the playlist schema is unordered. When
